@@ -13,8 +13,8 @@ final class EntityRegistry
     static void registerEntities(Configuration configuration)
     {
         // TODO: Add entities here...
-//        configuration.addAnnotatedClass(User.class);
-//        configuration.addAnnotatedClass(Company.class);
+        configuration.addAnnotatedClass(User.class);
+        configuration.addAnnotatedClass(Company.class);
 //        configuration.addAnnotatedClass(Membership.class);
 //        configuration.addAnnotatedClass(MembershipType.class);
 //        configuration.addAnnotatedClass(Location.class);
