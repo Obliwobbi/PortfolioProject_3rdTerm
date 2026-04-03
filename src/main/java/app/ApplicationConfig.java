@@ -18,17 +18,20 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
-public class ApplicationConfig {
+public class ApplicationConfig
+{
 
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    public static void main(String[] args) {
-
+    public static Javalin startApp(int port)
+    {
         CompanyDAO companyDAO = new CompanyDAO(emf);
         UserDAO userDAO = new UserDAO(emf);
 
-        Javalin app = Javalin.create(config -> {
-            config.router.apiBuilder(() -> {
+        Javalin app = Javalin.create(config ->
+        {
+            config.router.apiBuilder(() ->
+            {
                 // TODO: Split routes into separate controller classes later.
             });
         });
@@ -36,17 +39,20 @@ public class ApplicationConfig {
         app.before(ctx -> System.out.println("Incoming request: " + ctx.method() + " " + ctx.path()));
         app.after(ctx -> System.out.println("Response status: " + ctx.status()));
 
-        app.exception(EntityNotFoundException.class, (e, ctx) -> {
+        app.exception(EntityNotFoundException.class, (e, ctx) ->
+        {
             ctx.status(404);
             ctx.json(new ApiErrorResponse(404, e.getMessage()));
         });
 
-        app.exception(IllegalArgumentException.class, (e, ctx) -> {
+        app.exception(IllegalArgumentException.class, (e, ctx) ->
+        {
             ctx.status(400);
             ctx.json(new ApiErrorResponse(400, e.getMessage()));
         });
 
-        app.exception(Exception.class, (e, ctx) -> {
+        app.exception(Exception.class, (e, ctx) ->
+        {
             e.printStackTrace();
             ctx.status(500);
             ctx.json(new ApiErrorResponse(500, "Internal server error"));
@@ -58,7 +64,8 @@ public class ApplicationConfig {
         // Company endpoints
         // --------------------
 
-        app.get("/companies", ctx -> {
+        app.get("/companies", ctx ->
+        {
             List<CompanyResponseDTO> response = companyDAO.getAll().stream()
                     .map(company -> new CompanyResponseDTO(
                             company.getId(),
@@ -69,7 +76,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.get("/companies/{id}", ctx -> {
+        app.get("/companies/{id}", ctx ->
+        {
             Long id = Long.parseLong(ctx.pathParam("id"));
             Company company = companyDAO.getById(id);
 
@@ -81,7 +89,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.post("/companies", ctx -> {
+        app.post("/companies", ctx ->
+        {
             CreateCompanyRequestDTO request = ctx.bodyAsClass(CreateCompanyRequestDTO.class);
 
             Company company = Company.builder()
@@ -99,7 +108,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.put("/companies/{id}", ctx -> {
+        app.put("/companies/{id}", ctx ->
+        {
             Long id = Long.parseLong(ctx.pathParam("id"));
             UpdateCompanyRequestDTO request = ctx.bodyAsClass(UpdateCompanyRequestDTO.class);
 
@@ -116,7 +126,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.delete("/companies/{id}", ctx -> {
+        app.delete("/companies/{id}", ctx ->
+        {
             Long id = Long.parseLong(ctx.pathParam("id"));
             Company company = companyDAO.getById(id);
 
@@ -128,7 +139,8 @@ public class ApplicationConfig {
         // User endpoints
         // --------------------
 
-        app.get("/users", ctx -> {
+        app.get("/users", ctx ->
+        {
             List<UserResponseDTO> response = userDAO.getAllWithCompany().stream()
                     .map(user -> new UserResponseDTO(
                             user.getId(),
@@ -145,7 +157,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.get("/users/{id}", ctx -> {
+        app.get("/users/{id}", ctx ->
+        {
             Long id = Long.parseLong(ctx.pathParam("id"));
             User user = userDAO.getByIdWithCompany(id);
 
@@ -163,7 +176,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.post("/users", ctx -> {
+        app.post("/users", ctx ->
+        {
             CreateUserRequestDTO request = ctx.bodyAsClass(CreateUserRequestDTO.class);
 
             Company company = companyDAO.getById(request.companyId());
@@ -196,7 +210,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.put("/users/{id}", ctx -> {
+        app.put("/users/{id}", ctx ->
+        {
             Long id = Long.parseLong(ctx.pathParam("id"));
             UpdateUserRequestDTO request = ctx.bodyAsClass(UpdateUserRequestDTO.class);
 
@@ -224,7 +239,8 @@ public class ApplicationConfig {
             ctx.json(response);
         });
 
-        app.delete("/users/{id}", ctx -> {
+        app.delete("/users/{id}", ctx ->
+        {
             Long id = Long.parseLong(ctx.pathParam("id"));
             User user = userDAO.getById(id);
 
@@ -251,6 +267,12 @@ public class ApplicationConfig {
         // TODO: Add authentication endpoints like /login.
         // TODO: Move route handlers into controller classes.
 
-        app.start(7000);
+        app.start(port);
+        return app;
+    }
+
+    public static void main(String[] args)
+    {
+        startApp(7000);
     }
 }
