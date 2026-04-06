@@ -152,7 +152,9 @@ public class UserRoutesTest
         String updateBody = """
                 {
                   "firstname": "Updated",
-                  "lastname": "alsoUpdated"
+                  "lastname": "alsoUpdated",
+                  "dob": "1996-05-25",
+                  "role": "MEMBER"
                 }
                 """;
 
@@ -162,7 +164,10 @@ public class UserRoutesTest
                 .then().statusCode(200)
                 .body("id", org.hamcrest.Matchers.equalTo(userId.intValue()))
                 .body("firstname", org.hamcrest.Matchers.equalTo("Updated"))
-                .body("lastname", org.hamcrest.Matchers.equalTo("alsoUpdated"));
+                .body("lastname", org.hamcrest.Matchers.equalTo("alsoUpdated"))
+                .body("email", org.hamcrest.Matchers.equalTo("test@test.dk"))
+                .body("role", org.hamcrest.Matchers.equalTo("MEMBER"));
+
 
     }
 
