@@ -215,10 +215,10 @@ public class ApplicationConfig
 
             User user = userDAO.getByIdWithCompany(id);
 
-            user.setFirstname(request.firstname());
-            user.setLastname(request.lastname());
-            user.setDob(request.dob());
-            user.setRole(request.role());
+            if (request.firstname() != null) user.setFirstname(request.firstname());
+            if (request.lastname() != null) user.setLastname(request.lastname());
+            if (request.dob() != null) user.setDob(request.dob());
+            if (request.role() != null) user.setRole(request.role());
 
             User updated = userDAO.update(user);
             User updatedWithCompany = userDAO.getByIdWithCompany(updated.getId());
