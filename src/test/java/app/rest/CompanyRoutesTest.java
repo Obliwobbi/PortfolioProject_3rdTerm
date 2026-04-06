@@ -28,6 +28,7 @@ public class CompanyRoutesTest
     }
 
     @Test
+    @DisplayName("Return status 200: API is running")
     void rootEndpointShouldReturnApiRunningMessage()
     {
         RestAssured
@@ -40,7 +41,7 @@ public class CompanyRoutesTest
     }
 
     @Test
-    @DisplayName("Test company name")
+    @DisplayName("Return status 201: Create new company")
     void createCompany()
     {
         String requestBody = """
@@ -62,7 +63,7 @@ public class CompanyRoutesTest
     }
 
     @Test
-    @DisplayName("Get all companies")
+    @DisplayName("Return status 200: Get all companies")
     void getAllCompanies()
     {
         RestAssured
@@ -74,6 +75,7 @@ public class CompanyRoutesTest
     }
 
     @Test
+    @DisplayName("Return status 200: Get company by ID")
     void shouldGetCompanyById() {
         Long companyId = Integer.toUnsignedLong(
                 RestAssured
@@ -102,6 +104,7 @@ public class CompanyRoutesTest
     }
 
     @Test
+    @DisplayName("Return status 404: Company Does not exist")
     void shouldReturn404WhenCompanyDoesNotExist() {
         RestAssured
                 .given()
