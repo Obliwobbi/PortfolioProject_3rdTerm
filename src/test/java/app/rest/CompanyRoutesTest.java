@@ -52,21 +52,59 @@ public class CompanyRoutesTest
     void createCompany()
     {
         String requestBody = """
-            {
-              "name": "Test Company"
-            }
-            """;
+                {
+                  "name": "Test Company"
+                }
+                """;
 
         RestAssured
                 .given()
-                    .contentType("application/json")
-                    .body(requestBody)
+                .contentType("application/json")
+                .body(requestBody)
                 .when()
-                    .post("/companies")
+                .post("/companies")
                 .then()
-                    .statusCode(201)
-                    .body("name", org.hamcrest.Matchers.equalTo("Test Company"))
-                    .body("id", org.hamcrest.Matchers.notNullValue());
+                .statusCode(201)
+                .body("name", org.hamcrest.Matchers.equalTo("Test Company"))
+                .body("id", org.hamcrest.Matchers.notNullValue());
+    }
+
+    @Test
+    @DisplayName("Return status 201/204/404: Create, Delete, Verify (no) company")
+    void deleteCompany()
+    {
+        //Create company to test delete
+        Long companyId = Integer.toUnsignedLong(
+                RestAssured
+                        .given()
+                        .contentType("application/json")
+                        .body("""
+                                {
+                                  "name": "Company To Delete"
+                                }
+                                """)
+                        .when()
+                        .post("/companies")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .path("id"));
+
+        //Delete company
+        RestAssured
+                .given()
+                .when()
+                .delete("/companies/" + companyId)
+                .then()
+                .statusCode(204);
+
+        //Verify
+        RestAssured
+                .given()
+                .when()
+                    .get("/companies" + companyId)
+                .then()
+                    .statusCode(404);
     }
 
     @Test
@@ -76,23 +114,24 @@ public class CompanyRoutesTest
         RestAssured
                 .given()
                 .when()
-                    .get("/companies")
+                .get("/companies")
                 .then()
-                    .statusCode(200);
+                .statusCode(200);
     }
 
     @Test
     @DisplayName("Return status 200: Get company by ID")
-    void shouldGetCompanyById() {
+    void getCompanyById()
+    {
         Long companyId = Integer.toUnsignedLong(
                 RestAssured
                         .given()
                         .contentType("application/json")
                         .body("""
-                              {
-                                "name": "Company For GetById Test"
-                              }
-                              """)
+                                {
+                                  "name": "Company For GetById Test"
+                                }
+                                """)
                         .when()
                         .post("/companies")
                         .then()
@@ -112,7 +151,8 @@ public class CompanyRoutesTest
 
     @Test
     @DisplayName("Return status 404: Company Does not exist")
-    void shouldReturn404WhenCompanyDoesNotExist() {
+    void return404WhenCompanyDoesNotExist()
+    {
         RestAssured
                 .given()
                 .when()
