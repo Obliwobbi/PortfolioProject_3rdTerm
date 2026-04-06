@@ -21,9 +21,7 @@ import java.util.List;
 public class ApplicationConfig
 {
 
-    private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
-
-    public static Javalin startApp(int port)
+    public static Javalin startApp(int port, EntityManagerFactory emf)
     {
         CompanyDAO companyDAO = new CompanyDAO(emf);
         UserDAO userDAO = new UserDAO(emf);
@@ -273,6 +271,6 @@ public class ApplicationConfig
 
     public static void main(String[] args)
     {
-        startApp(7000);
+        startApp(7000, HibernateConfig.getEntityManagerFactory());
     }
 }
