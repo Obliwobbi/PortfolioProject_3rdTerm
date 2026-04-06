@@ -66,7 +66,7 @@ public class CompanyRoutesTest
     }
 
     @Test
-    @DisplayName("Return status 201: Create new company")
+    @DisplayName("POST - Return status 201: Create new company")
     void createCompany()
     {
         String requestBody = """
@@ -88,19 +88,105 @@ public class CompanyRoutesTest
     }
 
     @Test
-    @DisplayName("Return status 201/204/404: Create, Delete, Verify (no) company")
-    void deleteCompany()
+    @DisplayName("PUT - Return status 200: Update company")
+    void updateCompany()
     {
-        //Create company to test delete
+        //Create company
+        String requestBody = """
+                {
+                  "name": "Test Company"
+                }
+                """;
+
         Long companyId = Integer.toUnsignedLong(
                 RestAssured
                         .given()
                         .contentType("application/json")
-                        .body("""
-                                {
-                                  "name": "Company To Delete"
-                                }
-                                """)
+                        .body(requestBody)
+                        .when()
+                        .post("/companies")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .path("id"));
+
+        //Update company
+        String updateBody = """
+                {
+                  "name": "Update Test Company"
+                }
+                """;
+
+        //Verify
+        RestAssured
+                .given().contentType("application/json").body(updateBody)
+                .when().put("/companies/" + companyId)
+                .then().statusCode(200)
+                .body("id", org.hamcrest.Matchers.equalTo(companyId.intValue()))
+                .body("name", org.hamcrest.Matchers.equalTo("Update Test Company"));
+
+    }
+
+    @Test
+    @DisplayName("Return status 200: Get all companies")
+    void getAllCompanies()
+    {
+        RestAssured
+                .given()
+                .when()
+                .get("/companies")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("Return status 200: Get company by ID")
+    void getCompanyById()
+    {
+        String requestBody = """
+                {
+                  "name": "Company For GetById Test"
+                }
+                """;
+
+        Long companyId = Integer.toUnsignedLong(
+                RestAssured
+                        .given()
+                        .contentType("application/json")
+                        .body(requestBody)
+                        .when()
+                        .post("/companies")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .path("id"));
+
+        RestAssured
+                .given()
+                .when()
+                .get("/companies/" + companyId)
+                .then()
+                .statusCode(200)
+                .body("id", org.hamcrest.Matchers.equalTo(companyId.intValue()))
+                .body("name", org.hamcrest.Matchers.equalTo("Company For GetById Test"));
+    }
+
+    @Test
+    @DisplayName("Return status 201/204/404: Create, Delete, Verify (no) company")
+    void deleteCompany()
+    {
+        //Create company to test delete
+        String requestBody = """
+                {
+                  "name": "Company To Delete"
+                }
+                """;
+
+        Long companyId = Integer.toUnsignedLong(
+                RestAssured
+                        .given()
+                        .contentType("application/json")
+                        .body(requestBody)
                         .when()
                         .post("/companies")
                         .then()
@@ -120,51 +206,9 @@ public class CompanyRoutesTest
         RestAssured
                 .given()
                 .when()
-                    .get("/companies" + companyId)
-                .then()
-                    .statusCode(404);
-    }
-
-    @Test
-    @DisplayName("Return status 200: Get all companies")
-    void getAllCompanies()
-    {
-        RestAssured
-                .given()
-                .when()
-                .get("/companies")
-                .then()
-                .statusCode(200);
-    }
-
-    @Test
-    @DisplayName("Return status 200: Get company by ID")
-    void getCompanyById()
-    {
-        Long companyId = Integer.toUnsignedLong(
-                RestAssured
-                        .given()
-                        .contentType("application/json")
-                        .body("""
-                                {
-                                  "name": "Company For GetById Test"
-                                }
-                                """)
-                        .when()
-                        .post("/companies")
-                        .then()
-                        .statusCode(201)
-                        .extract()
-                        .path("id"));
-
-        RestAssured
-                .given()
-                .when()
                 .get("/companies/" + companyId)
                 .then()
-                .statusCode(200)
-                .body("id", org.hamcrest.Matchers.equalTo(companyId.intValue()))
-                .body("name", org.hamcrest.Matchers.equalTo("Company For GetById Test"));
+                .statusCode(404);
     }
 
     @Test
