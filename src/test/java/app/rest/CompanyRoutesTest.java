@@ -21,6 +21,24 @@ public class CompanyRoutesTest
         RestAssured.port = 7001;
     }
 
+    @BeforeEach
+    void cleanUpDatabase()
+    {
+        var em = emf.createEntityManager();
+        try
+        {
+            em.getTransaction().begin();
+
+            em.createNativeQuery("DELETE FROM users").executeUpdate();
+            em.createNativeQuery("DELETE FROM companies").executeUpdate();
+
+            em.getTransaction().commit();
+        } finally
+        {
+            em.close();
+        }
+    }
+
     @AfterAll
     static void tearDown()
     {
