@@ -29,6 +29,9 @@ public class ApplicationConfig
     {
         CompanyDAO companyDAO = new CompanyDAO(emf);
         UserDAO userDAO = new UserDAO(emf);
+        PasswordService passwordService = new PasswordService();
+        JwtService jwtService = new JwtService();
+        AuthService authService = new AuthService(userDAO, passwordService, jwtService);
 
         Javalin app = Javalin.create(config ->
         {
