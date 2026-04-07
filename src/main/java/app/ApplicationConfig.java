@@ -12,6 +12,10 @@ import app.dto.user.UserResponseDTO;
 import app.entities.Company;
 import app.entities.User;
 import app.exceptions.ApiErrorResponse;
+import app.exceptions.UnauthorizedException;
+import app.services.AuthService;
+import app.services.JwtService;
+import app.services.PasswordService;
 import io.javalin.Javalin;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
@@ -37,6 +41,10 @@ public class ApplicationConfig
         app.before(ctx -> System.out.println("Incoming request: " + ctx.method() + " " + ctx.path()));
         app.after(ctx -> System.out.println("Response status: " + ctx.status()));
 
+        // --------------------
+        // Exception handlers
+        // --------------------
+
         app.exception(EntityNotFoundException.class, (e, ctx) ->
         {
             ctx.status(404);
@@ -47,6 +55,11 @@ public class ApplicationConfig
         {
             ctx.status(400);
             ctx.json(new ApiErrorResponse(400, e.getMessage()));
+        });
+
+        app.exception(UnauthorizedException.class, (e, ctx) -> {
+            ctx.status(401);
+            ctx.json(new app.exceptions.ApiErrorResponse(401, e.getMessage()));
         });
 
         app.exception(Exception.class, (e, ctx) ->
