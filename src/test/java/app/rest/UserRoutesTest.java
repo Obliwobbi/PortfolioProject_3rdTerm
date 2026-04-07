@@ -52,7 +52,11 @@ public class UserRoutesTest
         }
     }
 
-    private Long createCompany(String name)
+    // --------------
+    // Helper methods
+    // --------------
+
+    private Long createCompany(String name, String token)
     {
         return Integer.toUnsignedLong(
                 RestAssured
@@ -63,12 +67,80 @@ public class UserRoutesTest
                                     "name": "%s"
                                 }
                                 """.formatted(name))
+                        .header("Authorization", "Bearer " + token)
                         .when()
                         .post("/companies")
                         .then()
                         .statusCode(201)
                         .extract()
                         .path("id"));
+    }
+
+    private Long createUser(Long companyId, String email, String password, String token)
+    {
+        return Integer.toUnsignedLong(
+                RestAssured
+                        .given()
+                        .contentType("application/json")
+                        .body("""
+                                {
+                                  "companyId": %d,
+                                  "email": "%s",
+                                  "firstname": "Test",
+                                  "lastname": "User",
+                                  "dob": "1996-05-24",
+                                  "role": "MEMBER",
+                                  "password": "%s"
+                                }
+                                """.formatted(companyId, email, password))
+                        .header("Authorization", "Bearer " + token)
+                        .when()
+                        .post("/users")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .path("id"));
+    }
+
+    private String loginAsSeededAdmin()
+    {
+        CompanyDAO companyDAO = new CompanyDAO(emf);
+        UserDAO userDAO = new UserDAO(emf);
+        PasswordService passwordService = new PasswordService();
+
+        Company company = companyDAO.create(
+                Company.builder()
+                        .name("Seeded Admin Company")
+                        .build()
+        );
+
+        userDAO.create(
+                User.builder()
+                        .company(company)
+                        .email("admin@silverback.dk")
+                        .firstname("Toby")
+                        .lastname("Hartzberg")
+                        .dob(LocalDate.of(1996, 5, 24))
+                        .role(Role.SYSTEM_ADMIN)
+                        .passwordHash(passwordService.hashPassword("secret123"))
+                        .build()
+        );
+
+        return RestAssured
+                .given()
+                .contentType("application/json")
+                .body("""
+                        {
+                          "email": "admin@silverback.dk",
+                          "password": "secret123"
+                        }
+                        """)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("token");
     }
 
     @Test
