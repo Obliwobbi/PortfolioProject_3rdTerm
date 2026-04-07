@@ -417,9 +417,9 @@ public class UserRoutesTest
     @Test
     @DisplayName("POST - Return status 200: Create a user that can log in afterwards")
     void createdUserShouldBeAbleToLogIn() {
-        String adminToken = loginAsSeededAdmin();
+        String token = loginAsSeededAdmin();
 
-        Long companyId = createCompany("Login Flow Test Company", adminToken);
+        Long companyId = createCompany("Login Flow Test Company", token);
 
         String email = "newuser@test.dk";
         String password = "secret1234";
@@ -427,7 +427,7 @@ public class UserRoutesTest
         RestAssured
                 .given()
                 .contentType("application/json")
-                .header("Authorization", "Bearer " + adminToken)
+                .header("Authorization", "Bearer " + token)
                 .body("""
                     {
                       "companyId": %d,
@@ -460,6 +460,52 @@ public class UserRoutesTest
                 .then()
                 .statusCode(200)
                 .body("token", org.hamcrest.Matchers.notNullValue());
+    }
+
+    @Test
+    @DisplayName("Unauthorized - Return status 401: Created user should not be able to log in with wrong password")
+    void createdUserShouldNotBeAbleToLogInWithWrongPassword() {
+        String token = loginAsSeededAdmin();
+
+        Long companyId = createCompany("Wrong Password Login Company", token);
+
+        String email = "wronglogin@test.dk";
+        String password = "secret123";
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "Bearer " + token)
+                .body("""
+                    {
+                      "companyId": %d,
+                      "email": "%s",
+                      "firstname": "Wrong",
+                      "lastname": "Password",
+                      "dob": "1996-05-24",
+                      "role": "MEMBER",
+                      "password": "%s"
+                    }
+                    """.formatted(companyId, email, password))
+                .when()
+                .post("/users")
+                .then()
+                .statusCode(201);
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .body("""
+                    {
+                      "email": "%s",
+                      "password": "notTheRightPassword"
+                    }
+                    """.formatted(email))
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(401)
+                .body("status", org.hamcrest.Matchers.equalTo(401));
     }
 
 }
