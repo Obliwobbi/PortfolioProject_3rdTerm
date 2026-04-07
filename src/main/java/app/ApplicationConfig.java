@@ -105,6 +105,8 @@ public class ApplicationConfig
 
         app.post("/companies", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             CreateCompanyRequestDTO request = ctx.bodyAsClass(CreateCompanyRequestDTO.class);
 
             Company company = Company.builder()
@@ -124,6 +126,8 @@ public class ApplicationConfig
 
         app.put("/companies/{id}", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             Long id = Long.parseLong(ctx.pathParam("id"));
             UpdateCompanyRequestDTO request = ctx.bodyAsClass(UpdateCompanyRequestDTO.class);
 
@@ -142,6 +146,8 @@ public class ApplicationConfig
 
         app.delete("/companies/{id}", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             Long id = Long.parseLong(ctx.pathParam("id"));
             Company company = companyDAO.getById(id);
 
@@ -155,6 +161,8 @@ public class ApplicationConfig
 
         app.get("/users", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             List<UserResponseDTO> response = userDAO.getAllWithCompany().stream()
                     .map(user -> new UserResponseDTO(
                             user.getId(),
@@ -173,6 +181,8 @@ public class ApplicationConfig
 
         app.get("/users/{id}", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             Long id = Long.parseLong(ctx.pathParam("id"));
             User user = userDAO.getByIdWithCompany(id);
 
@@ -192,6 +202,8 @@ public class ApplicationConfig
 
         app.post("/users", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             CreateUserRequestDTO request = ctx.bodyAsClass(CreateUserRequestDTO.class);
 
             Company company = companyDAO.getById(request.companyId());
@@ -228,6 +240,8 @@ public class ApplicationConfig
 
         app.put("/users/{id}", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             Long id = Long.parseLong(ctx.pathParam("id"));
             UpdateUserRequestDTO request = ctx.bodyAsClass(UpdateUserRequestDTO.class);
 
@@ -257,6 +271,8 @@ public class ApplicationConfig
 
         app.delete("/users/{id}", ctx ->
         {
+            requireAuth(ctx, jwtService);
+
             Long id = Long.parseLong(ctx.pathParam("id"));
             User user = userDAO.getById(id);
 
