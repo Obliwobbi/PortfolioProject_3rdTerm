@@ -2,10 +2,18 @@ package app.rest;
 
 import app.ApplicationConfig;
 import app.config.HibernateTestConfig;
+import app.daos.CompanyDAO;
+import app.daos.UserDAO;
+import app.entities.Company;
+import app.entities.Role;
+import app.entities.User;
+import app.services.PasswordService;
 import io.javalin.Javalin;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
+
+import java.time.LocalDate;
 
 public class CompanyRoutesTest
 {
@@ -50,6 +58,51 @@ public class CompanyRoutesTest
         {
             emf.close();
         }
+    }
+
+    // --------------
+    // Helper methods
+    // --------------
+
+    private String loginAsSeededAdmin()
+    {
+        CompanyDAO companyDAO = new CompanyDAO(emf);
+        UserDAO userDAO = new UserDAO(emf);
+        PasswordService passwordService = new PasswordService();
+
+        Company company = companyDAO.create(
+                Company.builder()
+                        .name("Seeded Admin Company")
+                        .build()
+        );
+
+        userDAO.create(
+                User.builder()
+                        .company(company)
+                        .email("admin@silverback.dk")
+                        .firstname("Toby")
+                        .lastname("Hartzberg")
+                        .dob(LocalDate.of(1996, 5, 24))
+                        .role(Role.SYSTEM_ADMIN)
+                        .passwordHash(passwordService.hashPassword("secret123"))
+                        .build()
+        );
+
+        return RestAssured
+                .given()
+                .contentType("application/json")
+                .body("""
+                        {
+                          "email": "admin@silverback.dk",
+                          "password": "secret123"
+                        }
+                        """)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("token");
     }
 
     @Test
