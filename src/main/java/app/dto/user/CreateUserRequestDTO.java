@@ -11,5 +11,5 @@ public record CreateUserRequestDTO(
         String lastname,
         LocalDate dob,
         Role role,
-        String passwordHash
+        String password
 ) {}
