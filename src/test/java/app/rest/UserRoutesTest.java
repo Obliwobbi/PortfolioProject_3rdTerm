@@ -2,10 +2,18 @@ package app.rest;
 
 import app.ApplicationConfig;
 import app.config.HibernateTestConfig;
+import app.daos.CompanyDAO;
+import app.daos.UserDAO;
+import app.entities.Company;
+import app.entities.Role;
+import app.entities.User;
+import app.services.PasswordService;
 import io.javalin.Javalin;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
+
+import java.time.LocalDate;
 
 public class UserRoutesTest
 {
