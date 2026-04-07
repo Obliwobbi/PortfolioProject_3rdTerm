@@ -152,7 +152,7 @@ public class UserRoutesTest
     }
 
     @Test
-    @DisplayName("Return status 200: API is running")
+    @DisplayName("API ON - Return status 200: API is running")
     void rootEndpointShouldReturnApiRunningMessage()
     {
         RestAssured
@@ -168,8 +168,9 @@ public class UserRoutesTest
     @DisplayName("POST - Return status 201: Create new user")
     void createUser()
     {
+        String token = loginAsSeededAdmin();
         //Create company
-        Long companyId = createCompany("CreateUser Test Company");
+        Long companyId = createCompany("CreateUser Test Company", token);
 
         //Create user
         String requestBody = """
@@ -188,6 +189,7 @@ public class UserRoutesTest
                 .given()
                 .contentType("application/json")
                 .body(requestBody)
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .post("/users")
                 .then()
@@ -201,32 +203,10 @@ public class UserRoutesTest
     @DisplayName("PUT - Return status 200: Update user")
     void updateUser()
     {
+        String token = loginAsSeededAdmin();
         //Create company
-        Long companyId = createCompany("UpdateUser Test Company");
-
-        //Create user
-        String requestBody = """
-                {
-                  "companyId": %d,
-                  "email": "test@test.dk",
-                  "firstname": "Tester",
-                  "lastname": "Testersen",
-                  "dob": "1996-05-24",
-                  "role": "MEMBER"
-                }
-                """.formatted(companyId);
-
-        Long userId = Integer.toUnsignedLong(
-                RestAssured
-                        .given()
-                        .contentType("application/json")
-                        .body(requestBody)
-                        .when()
-                        .post("/users")
-                        .then()
-                        .statusCode(201)
-                        .extract()
-                        .path("id"));
+        Long companyId = createCompany("UpdateUser Test Company", token);
+        Long userId = createUser(companyId, "test@test.dk", "secret1234", token);
 
         //Update user
         String updateBody = """
@@ -239,7 +219,7 @@ public class UserRoutesTest
                 """;
 
         RestAssured
-                .given().contentType("application/json").body(updateBody)
+                .given().contentType("application/json").body(updateBody).header("Authorization", "Bearer " + token)
                 .when().put("/users/" + userId)
                 .then().statusCode(200)
                 .body("id", org.hamcrest.Matchers.equalTo(userId.intValue()))
@@ -255,8 +235,9 @@ public class UserRoutesTest
     @DisplayName("GET - Return status 200: Get all users")
     void getAllUsers()
     {
+        String token = loginAsSeededAdmin();
         //Create company
-        Long companyId = createCompany("GetAllUsers Test Company");
+        Long companyId = createCompany("GetAllUsers Test Company", token);
 
         //Create user
         String requestBody = """
@@ -283,7 +264,16 @@ public class UserRoutesTest
                 .given()
                 .contentType("application/json")
                 .body(requestBody)
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .post("/users")
+                .then()
+                .statusCode(201);
+        RestAssured
+                .given()
+                .contentType("application/json")
                 .body(requestBody2)
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .post("/users")
                 .then()
@@ -291,6 +281,7 @@ public class UserRoutesTest
 
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get("/users")
                 .then()
@@ -301,8 +292,9 @@ public class UserRoutesTest
     @DisplayName("GET - Return status 200: Get user by ID")
     void getUserById()
     {
+        String token = loginAsSeededAdmin();
         //Create company
-        Long companyId = createCompany("GetAllUsers Test Company");
+        Long companyId = createCompany("GetAllUsers Test Company", token);
 
         //Create request bodies for users
         String requestBody = """
@@ -332,6 +324,7 @@ public class UserRoutesTest
                 .given()
                 .contentType("application/json")
                 .body(requestBody)
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .post("/users")
                 .then()
@@ -343,6 +336,7 @@ public class UserRoutesTest
                         .given()
                         .contentType("application/json")
                         .body(requestBody2)
+                        .header("Authorization", "Bearer " + token)
                         .when()
                         .post("/users")
                         .then()
@@ -353,6 +347,7 @@ public class UserRoutesTest
         //Get user with user id 2
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get("/users/" + userId)
                 .then()
@@ -365,8 +360,9 @@ public class UserRoutesTest
     @DisplayName("DELETE - Return status 201/204/404: Delete user")
     void deleteUser()
     {
+        String token = loginAsSeededAdmin();
         //Create company
-        Long companyId = createCompany("DeleteUser Test Company");
+        Long companyId = createCompany("DeleteUser Test Company", token);
 
         //Create user
         String requestBody = """
@@ -385,6 +381,7 @@ public class UserRoutesTest
                         .given()
                         .contentType("application/json")
                         .body(requestBody)
+                        .header("Authorization", "Bearer " + token)
                         .when()
                         .post("/users")
                         .then()
@@ -395,6 +392,7 @@ public class UserRoutesTest
         //Delete user
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .delete("/users/" + userId)
                 .then()
@@ -403,6 +401,7 @@ public class UserRoutesTest
         //Verify
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get("/users/" + userId)
                 .then()
