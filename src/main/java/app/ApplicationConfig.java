@@ -316,11 +316,6 @@ public class ApplicationConfig
         return app;
     }
 
-    public static void main(String[] args)
-    {
-        startApp(7000, HibernateConfig.getEntityManagerFactory());
-    }
-
     // --------------------
     // Helper methods
     // --------------------
