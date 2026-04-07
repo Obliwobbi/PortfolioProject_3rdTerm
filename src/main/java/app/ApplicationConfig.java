@@ -280,7 +280,20 @@ public class ApplicationConfig
         // TODO: Add routes for CheckIn.
 
 
+        // --------------------
+        // Authentication endpoints
+        // --------------------
         // TODO: Add authentication endpoints like /login.
+
+        app.post("/login", ctx -> {
+            var request = ctx.bodyAsClass(app.dto.login.LoginRequestDTO.class);
+
+            String token = authService.login(request.email(), request.password());
+
+            ctx.status(200);
+            ctx.json(new app.dto.login.LoginResponseDTO(token));
+        });
+
         // TODO: Move route handlers into controller classes.
 
         app.start(port);
