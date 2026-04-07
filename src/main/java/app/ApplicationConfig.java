@@ -289,4 +289,19 @@ public class ApplicationConfig
     {
         startApp(7000, HibernateConfig.getEntityManagerFactory());
     }
+
+    // --------------------
+    // Helper methods
+    // --------------------
+
+    private static void requireAuth(io.javalin.http.Context ctx, JwtService jwtService) {
+        String authHeader = ctx.header("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring("Bearer ".length());
+        jwtService.verifyToken(token);
+    }
 }
