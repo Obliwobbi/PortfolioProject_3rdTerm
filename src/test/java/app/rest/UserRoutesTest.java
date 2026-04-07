@@ -180,7 +180,8 @@ public class UserRoutesTest
                   "firstname": "Tester",
                   "lastname": "Testersen",
                   "dob": "1996-05-24",
-                  "role": "MEMBER"
+                  "role": "MEMBER",
+                  "password": "secret1234"
                 }
                 """.formatted(companyId);
 
@@ -247,7 +248,8 @@ public class UserRoutesTest
                   "firstname": "Tester",
                   "lastname": "Testersen",
                   "dob": "1996-05-24",
-                  "role": "MEMBER"
+                  "role": "MEMBER",
+                  "password": "secret1234"
                 }
                 """.formatted(companyId);
         String requestBody2 = """
@@ -257,7 +259,8 @@ public class UserRoutesTest
                   "firstname": "Tester2",
                   "lastname": "Testersen",
                   "dob": "1996-05-24",
-                  "role": "MEMBER"
+                  "role": "MEMBER",
+                  "password": "secret1234"
                 }
                 """.formatted(companyId);
         RestAssured
@@ -304,7 +307,8 @@ public class UserRoutesTest
                   "firstname": "Tester",
                   "lastname": "Testersen",
                   "dob": "1996-05-24",
-                  "role": "MEMBER"
+                  "role": "MEMBER",
+                  "password": "secret1234"
                 }
                 """.formatted(companyId);
         String requestBody2 = """
@@ -314,7 +318,8 @@ public class UserRoutesTest
                   "firstname": "Tester2",
                   "lastname": "Testersen",
                   "dob": "1996-05-24",
-                  "role": "MEMBER"
+                  "role": "MEMBER",
+                  "password": "secret1234"
                 }
                 """.formatted(companyId);
 
@@ -372,7 +377,8 @@ public class UserRoutesTest
                   "firstname": "Tester",
                   "lastname": "Testersen",
                   "dob": "1996-05-24",
-                  "role": "MEMBER"
+                  "role": "MEMBER",
+                  "password": "secret1234"
                 }
                 """.formatted(companyId);
 
