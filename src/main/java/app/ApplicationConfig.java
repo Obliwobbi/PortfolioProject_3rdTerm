@@ -196,6 +196,8 @@ public class ApplicationConfig
 
             Company company = companyDAO.getById(request.companyId());
 
+            String hashedPassword = passwordService.hashPassword(request.password());
+
             User user = User.builder()
                     .company(company)
                     .email(request.email())
@@ -203,7 +205,7 @@ public class ApplicationConfig
                     .lastname(request.lastname())
                     .dob(request.dob())
                     .role(request.role())
-                    .passwordHash(request.passwordHash())
+                    .passwordHash(hashedPassword)
                     .build();
 
             User created = userDAO.create(user);
