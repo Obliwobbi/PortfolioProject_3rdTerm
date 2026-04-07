@@ -414,4 +414,52 @@ public class UserRoutesTest
                 .statusCode(404);
     }
 
+    @Test
+    @DisplayName("POST - Return status 200: Create a user that can log in afterwards")
+    void createdUserShouldBeAbleToLogIn() {
+        String adminToken = loginAsSeededAdmin();
+
+        Long companyId = createCompany("Login Flow Test Company", adminToken);
+
+        String email = "newuser@test.dk";
+        String password = "secret1234";
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body("""
+                    {
+                      "companyId": %d,
+                      "email": "%s",
+                      "firstname": "New",
+                      "lastname": "User",
+                      "dob": "1996-05-24",
+                      "role": "MEMBER",
+                      "password": "%s"
+                    }
+                    """.formatted(companyId, email, password))
+                .when()
+                .post("/users")
+                .then()
+                .statusCode(201)
+                .body("email", org.hamcrest.Matchers.equalTo(email))
+                .body("companyId", org.hamcrest.Matchers.equalTo(companyId.intValue()));
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .body("""
+                    {
+                      "email": "%s",
+                      "password": "%s"
+                    }
+                    """.formatted(email, password))
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(200)
+                .body("token", org.hamcrest.Matchers.notNullValue());
+    }
+
 }
