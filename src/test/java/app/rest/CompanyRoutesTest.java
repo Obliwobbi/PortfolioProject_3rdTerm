@@ -122,6 +122,7 @@ public class CompanyRoutesTest
     @DisplayName("POST - Return status 201: Create new company")
     void createCompany()
     {
+        String token = loginAsSeededAdmin();
         String requestBody = """
                 {
                   "name": "Test Company"
@@ -132,6 +133,7 @@ public class CompanyRoutesTest
                 .given()
                 .contentType("application/json")
                 .body(requestBody)
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .post("/companies")
                 .then()
@@ -144,6 +146,7 @@ public class CompanyRoutesTest
     @DisplayName("PUT - Return status 200: Update company")
     void updateCompany()
     {
+        String token = loginAsSeededAdmin();
         //Create company
         String requestBody = """
                 {
@@ -156,6 +159,7 @@ public class CompanyRoutesTest
                         .given()
                         .contentType("application/json")
                         .body(requestBody)
+                        .header("Authorization", "Bearer " + token)
                         .when()
                         .post("/companies")
                         .then()
@@ -173,6 +177,7 @@ public class CompanyRoutesTest
         //Verify
         RestAssured
                 .given().contentType("application/json").body(updateBody)
+                .header("Authorization", "Bearer " + token)
                 .when().put("/companies/" + companyId)
                 .then().statusCode(200)
                 .body("id", org.hamcrest.Matchers.equalTo(companyId.intValue()))
@@ -196,6 +201,7 @@ public class CompanyRoutesTest
     @DisplayName("Return status 200: Get company by ID")
     void getCompanyById()
     {
+        String token = loginAsSeededAdmin();
         String requestBody = """
                 {
                   "name": "Company For GetById Test"
@@ -207,6 +213,7 @@ public class CompanyRoutesTest
                         .given()
                         .contentType("application/json")
                         .body(requestBody)
+                        .header("Authorization", "Bearer " + token)
                         .when()
                         .post("/companies")
                         .then()
@@ -216,6 +223,7 @@ public class CompanyRoutesTest
 
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get("/companies/" + companyId)
                 .then()
@@ -228,6 +236,7 @@ public class CompanyRoutesTest
     @DisplayName("Return status 201/204/404: Create, Delete, Verify (no) company")
     void deleteCompany()
     {
+        String token = loginAsSeededAdmin();
         //Create company to test delete
         String requestBody = """
                 {
@@ -240,6 +249,7 @@ public class CompanyRoutesTest
                         .given()
                         .contentType("application/json")
                         .body(requestBody)
+                        .header("Authorization", "Bearer " + token)
                         .when()
                         .post("/companies")
                         .then()
@@ -250,6 +260,7 @@ public class CompanyRoutesTest
         //Delete company
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .delete("/companies/" + companyId)
                 .then()
@@ -258,6 +269,7 @@ public class CompanyRoutesTest
         //Verify
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get("/companies/" + companyId)
                 .then()
