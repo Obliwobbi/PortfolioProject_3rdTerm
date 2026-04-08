@@ -13,11 +13,11 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: membersystem_test
+          POSTGRES_DB: test_member_system
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres -d membersystem_test"
+          --health-cmd="pg_isready -U postgres -d test_member_system"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
