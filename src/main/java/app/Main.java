@@ -41,10 +41,12 @@ public class Main {
                         .build()
         );
 
-        String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
-        if (password == null || password.isBlank()) {
-            password = Utils.getPropertyValue("PASSWORD", "config.properties");
-        }
+        String password = "Test1234!";
+//        String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
+//        if (password == null || password.isBlank()) {
+//            password = Utils.getPropertyValue("PASSWORD", "config.properties");
+//        }
+        String hashedPassword = passwordService.hashPassword(password);
 
         User admin = User.builder()
                 .company(company)
@@ -53,7 +55,7 @@ public class Main {
                 .lastname("User")
                 .dob(LocalDate.of(1990, 1, 1))
                 .role(Role.SYSTEM_ADMIN)
-                .passwordHash(passwordService.hashPassword(password))
+                .passwordHash(hashedPassword)
                 .build();
 
         userDAO.create(admin);
