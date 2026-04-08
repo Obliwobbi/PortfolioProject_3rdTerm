@@ -41,7 +41,10 @@ public class Main {
                         .build()
         );
 
-        String password = Utils.getPropertyValue("PASSWORD", "config.properties");
+        String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
+        if (password == null || password.isBlank()) {
+            password = Utils.getPropertyValue("PASSWORD", "config.properties");
+        }
 
         User admin = User.builder()
                 .company(company)
