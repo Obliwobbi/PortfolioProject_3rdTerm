@@ -7,14 +7,15 @@ import app.entities.Company;
 import app.entities.Role;
 import app.entities.User;
 import app.services.PasswordService;
-import app.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.time.LocalDate;
 
-public class Main {
+public class Main
+{
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
         seedBootstrapAdmin(emf);
@@ -23,14 +24,16 @@ public class Main {
         ApplicationConfig.startApp(port, emf);
     }
 
-    private static void seedBootstrapAdmin(EntityManagerFactory emf) {
+    private static void seedBootstrapAdmin(EntityManagerFactory emf)
+    {
         UserDAO userDAO = new UserDAO(emf);
         CompanyDAO companyDAO = new CompanyDAO(emf);
         PasswordService passwordService = new PasswordService();
 
         String adminEmail = "admin@obli.dk";
 
-        if (userDAO.findByEmail(adminEmail).isPresent()) {
+        if (userDAO.findByEmail(adminEmail).isPresent())
+        {
             System.out.println("Bootstrap admin already exists.");
             return;
         }
@@ -43,7 +46,8 @@ public class Main {
 
 //        String password = "Test1234!";
         String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
-        if (password == null || password.isBlank()) {
+        if (password == null || password.isBlank())
+        {
             throw new IllegalStateException("BOOTSTRAP_ADMIN_PASSWORD is not set");
         }
         String hashedPassword = passwordService.hashPassword(password);
@@ -63,9 +67,11 @@ public class Main {
         System.out.println("Bootstrap admin created: " + adminEmail);
     }
 
-    private static int getPort() {
+    private static int getPort()
+    {
         String portEnv = System.getenv("PORT");
-        if (portEnv != null && !portEnv.isBlank()) {
+        if (portEnv != null && !portEnv.isBlank())
+        {
             return Integer.parseInt(portEnv);
         }
         return 7000;
