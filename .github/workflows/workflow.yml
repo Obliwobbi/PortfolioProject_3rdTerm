@@ -15,6 +15,9 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_member_system
+          ISSUER: ${{ secrets.ISSUER }}
+          TOKEN_EXPIRE_TIME: ${{ secrets.TOKEN_EXPIRE_TIME }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         ports:
           - 5432:5432
         options: >-
