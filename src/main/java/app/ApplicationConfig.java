@@ -1,11 +1,11 @@
 package app;
 
-import app.config.HibernateConfig;
 import app.daos.CompanyDAO;
 import app.daos.UserDAO;
 import app.dto.company.CompanyResponseDTO;
 import app.dto.company.CreateCompanyRequestDTO;
 import app.dto.company.UpdateCompanyRequestDTO;
+import app.dto.randomuser.RandomUserViewDTO;
 import app.dto.user.CreateUserRequestDTO;
 import app.dto.user.UpdateUserRequestDTO;
 import app.dto.user.UserResponseDTO;
@@ -16,6 +16,8 @@ import app.exceptions.UnauthorizedException;
 import app.services.AuthService;
 import app.services.JwtService;
 import app.services.PasswordService;
+import app.services.RandomUserService;
+
 import io.javalin.Javalin;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,6 +34,7 @@ public class ApplicationConfig
         PasswordService passwordService = new PasswordService();
         JwtService jwtService = new JwtService();
         AuthService authService = new AuthService(userDAO, passwordService, jwtService);
+        RandomUserService randomUserService = new RandomUserService();
 
         Javalin app = Javalin.create(config ->
         {
@@ -292,6 +295,27 @@ public class ApplicationConfig
 
             userDAO.delete(user);
             ctx.status(204);
+        });
+
+        // --------------------
+        // RandomUser endpoints
+        // --------------------
+
+        app.get("/randomusers", ctx ->
+        {
+            List<RandomUserViewDTO> randomUsers =
+                    randomUserService.fetchRandomUsers(10);
+
+            ctx.json(randomUsers);
+        });
+
+        app.get("/randomusers/{count}", ctx ->
+        {
+            Integer randomUserCount = Integer.parseInt(ctx.pathParam("count"));
+            List<RandomUserViewDTO> randomUsers =
+                    randomUserService.fetchRandomUsers(randomUserCount);
+
+            ctx.json(randomUsers);
         });
 
         // --------------------
