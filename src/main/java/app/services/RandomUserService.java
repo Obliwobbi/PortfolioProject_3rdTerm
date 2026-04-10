@@ -3,6 +3,7 @@ package app.services;
 import app.dto.randomuser.RandomUserViewDTO;
 import app.dto.randomuser.RandomUserResponseDTO;
 import app.dto.randomuser.RandomUserResultDTO;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -19,7 +20,8 @@ public class RandomUserService {
 
     public RandomUserService() {
         this.httpClient = HttpClient.newHttpClient();
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public List<RandomUserViewDTO> fetchRandomUsers(int count) {
