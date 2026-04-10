@@ -75,6 +75,20 @@ public class ApplicationConfig
         app.get("/", ctx -> ctx.result("MemberSystem API is running"));
 
         // --------------------
+        // Authentication endpoints
+        // --------------------
+        // TODO: Add authentication endpoints like /login.
+
+        app.post("/login", ctx -> {
+            var request = ctx.bodyAsClass(app.dto.login.LoginRequestDTO.class);
+
+            String token = authService.login(request.email(), request.password());
+
+            ctx.status(200);
+            ctx.json(new app.dto.login.LoginResponseDTO(token));
+        });
+
+        // --------------------
         // Company endpoints
         // --------------------
 
@@ -294,21 +308,6 @@ public class ApplicationConfig
         // CheckIn endpoints
         // --------------------
         // TODO: Add routes for CheckIn.
-
-
-        // --------------------
-        // Authentication endpoints
-        // --------------------
-        // TODO: Add authentication endpoints like /login.
-
-        app.post("/login", ctx -> {
-            var request = ctx.bodyAsClass(app.dto.login.LoginRequestDTO.class);
-
-            String token = authService.login(request.email(), request.password());
-
-            ctx.status(200);
-            ctx.json(new app.dto.login.LoginResponseDTO(token));
-        });
 
         // TODO: Move route handlers into controller classes.
 
