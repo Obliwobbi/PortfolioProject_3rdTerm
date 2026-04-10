@@ -12,7 +12,7 @@ The system allows organizations to manage members, roles, and membership states 
 Portfolio website:  
 https://portfolio.obli.dk/
 
-Project overview video (max 5 min):  
+Project overview video:  
 https://portfolio.obli.dk/posts/video/
 
 Deployed application:  
@@ -158,28 +158,6 @@ A company can have multiple users and locations.
 
 ---
 
-### Membership
-
-Represents a user’s membership.
-
-Fields:
-- id
-- user
-- membershipType
-- startDate
-- endDate
-- status
-
-This design allows membership history and avoids destructive updates.
-
----
-
-### Location
-
-Represents a physical or logical location belonging to a company.
-
----
-
 # API Documentation
 
 ## Base URL
@@ -242,9 +220,12 @@ Request body:
 
 ```json
 {
+  "companyId": 44,
   "email": "user@test.dk",
   "firstname": "John",
   "lastname": "Doe",
+  "dob": "yyyy-mm-dd",
+  "role": "<ROLE ENUM>",
   "password": "password"
 }
 ```
@@ -264,7 +245,7 @@ Response:
 * As a user, I want to belong to a company.
 * As an admin, I want to control user roles.
 
-(not all implemented yet due to personal problems)
+(not all implemented as of this moment)
 
 ---
 
