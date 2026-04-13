@@ -13,6 +13,7 @@ import app.dto.user.UserResponseDTO;
 import app.entities.Company;
 import app.entities.User;
 import app.exceptions.ApiErrorResponse;
+import app.exceptions.ConflictException;
 import app.exceptions.UnauthorizedException;
 import app.services.*;
 
@@ -65,6 +66,11 @@ public class ApplicationConfig
         app.exception(UnauthorizedException.class, (e, ctx) -> {
             ctx.status(401);
             ctx.json(new app.exceptions.ApiErrorResponse(401, e.getMessage()));
+        });
+
+        app.exception(ConflictException.class, (e, ctx) -> {
+            ctx.status(409);
+            ctx.json(new ApiErrorResponse(409, e.getMessage()));
         });
 
         app.exception(Exception.class, (e, ctx) ->
