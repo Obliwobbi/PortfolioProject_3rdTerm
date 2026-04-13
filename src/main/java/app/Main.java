@@ -32,20 +32,22 @@ public class Main
         PasswordService passwordService = new PasswordService();
 
         String adminEmail = "admin@obli.dk";
+        Company company = null;
 
         if (userDAO.findByEmail(adminEmail).isPresent())
         {
             System.out.println("Bootstrap admin already exists.");
             return;
         }
+        else
+        {
+            company = companyDAO.create(
+                    Company.builder()
+                            .name("Membersystem Bootstrap Company")
+                            .build()
+            );
+        }
 
-        Company company = companyDAO.create(
-                Company.builder()
-                        .name("Membersystem Bootstrap Company")
-                        .build()
-        );
-
-//        String password = "Test1234!";
         String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
         if (password == null || password.isBlank())
         {
@@ -55,6 +57,7 @@ public class Main
         {
             throw new IllegalStateException("BOOTSTRAP_ADMIN_PASSWORD is not set");
         }
+
         String hashedPassword = passwordService.hashPassword(password);
 
         User admin = User.builder()
