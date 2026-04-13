@@ -131,6 +131,11 @@ public class ApplicationConfig
 
             CreateCompanyRequestDTO request = ctx.bodyAsClass(CreateCompanyRequestDTO.class);
 
+            if (companyDAO.findByName(request.name()).isPresent())
+            {
+                throw new ConflictException("Company already exists with name: " + request.name());
+            }
+
             Company company = Company.builder()
                     .name(request.name())
                     .build();

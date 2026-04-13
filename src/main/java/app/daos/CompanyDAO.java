@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class CompanyDAO implements IDAO<Company> {
@@ -45,6 +46,18 @@ public class CompanyDAO implements IDAO<Company> {
                 throw new EntityNotFoundException("Company not found with id: " + id);
             }
             return company;
+        }
+    }
+
+    public Optional<Company> findByName(String name) {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery(
+                            "SELECT c FROM Company c WHERE c.name = :name",
+                            Company.class
+                    )
+                    .setParameter("name", name)
+                    .getResultStream()
+                    .findFirst();
         }
     }
 
