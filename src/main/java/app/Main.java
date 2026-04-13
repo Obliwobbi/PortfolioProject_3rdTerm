@@ -7,6 +7,7 @@ import app.entities.Company;
 import app.entities.Role;
 import app.entities.User;
 import app.services.PasswordService;
+import app.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.time.LocalDate;
@@ -48,6 +49,10 @@ public class Main
         String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
         if (password == null || password.isBlank())
         {
+            password = Utils.getPropertyValue("PASSWORD", "config.properties");
+        }
+        else
+        {
             throw new IllegalStateException("BOOTSTRAP_ADMIN_PASSWORD is not set");
         }
         String hashedPassword = passwordService.hashPassword(password);
@@ -74,6 +79,6 @@ public class Main
         {
             return Integer.parseInt(portEnv);
         }
-        return 7000;
+        return 7070;
     }
 }
