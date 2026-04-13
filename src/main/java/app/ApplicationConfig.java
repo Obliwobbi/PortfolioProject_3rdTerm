@@ -5,6 +5,7 @@ import app.daos.UserDAO;
 import app.dto.company.CompanyResponseDTO;
 import app.dto.company.CreateCompanyRequestDTO;
 import app.dto.company.UpdateCompanyRequestDTO;
+import app.dto.login.LoginResponseDTO;
 import app.dto.randomuser.RandomUserViewDTO;
 import app.dto.user.CreateUserRequestDTO;
 import app.dto.user.UpdateUserRequestDTO;
@@ -13,10 +14,7 @@ import app.entities.Company;
 import app.entities.User;
 import app.exceptions.ApiErrorResponse;
 import app.exceptions.UnauthorizedException;
-import app.services.AuthService;
-import app.services.JwtService;
-import app.services.PasswordService;
-import app.services.RandomUserService;
+import app.services.*;
 
 import io.javalin.Javalin;
 import jakarta.persistence.EntityManagerFactory;
@@ -34,6 +32,7 @@ public class ApplicationConfig
         PasswordService passwordService = new PasswordService();
         JwtService jwtService = new JwtService();
         AuthService authService = new AuthService(userDAO, passwordService, jwtService);
+        UserServiceImpl userService = new UserServiceImpl(userDAO, companyDAO, passwordService);
         RandomUserService randomUserService = new RandomUserService();
 
         Javalin app = Javalin.create(config ->
@@ -88,7 +87,7 @@ public class ApplicationConfig
             String token = authService.login(request.email(), request.password());
 
             ctx.status(200);
-            ctx.json(new app.dto.login.LoginResponseDTO(token));
+            ctx.json(new LoginResponseDTO(token));
         });
 
         // --------------------
@@ -222,34 +221,7 @@ public class ApplicationConfig
             requireAuth(ctx, jwtService);
 
             CreateUserRequestDTO request = ctx.bodyAsClass(CreateUserRequestDTO.class);
-
-            Company company = companyDAO.getById(request.companyId());
-
-            String hashedPassword = passwordService.hashPassword(request.password());
-
-            User user = User.builder()
-                    .company(company)
-                    .email(request.email())
-                    .firstname(request.firstname())
-                    .lastname(request.lastname())
-                    .dob(request.dob())
-                    .role(request.role())
-                    .passwordHash(hashedPassword)
-                    .build();
-
-            User created = userDAO.create(user);
-            User createdWithCompany = userDAO.getByIdWithCompany(created.getId());
-
-            UserResponseDTO response = new UserResponseDTO(
-                    createdWithCompany.getId(),
-                    createdWithCompany.getEmail(),
-                    createdWithCompany.getFirstname(),
-                    createdWithCompany.getLastname(),
-                    createdWithCompany.getDob(),
-                    createdWithCompany.getRole(),
-                    createdWithCompany.getCompany().getId(),
-                    createdWithCompany.getCompany().getName()
-            );
+            UserResponseDTO response = userService.create(request);
 
             ctx.status(201);
             ctx.json(response);
