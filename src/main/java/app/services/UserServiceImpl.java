@@ -7,6 +7,7 @@ import app.dto.user.UpdateUserRequestDTO;
 import app.dto.user.UserResponseDTO;
 import app.entities.Company;
 import app.entities.User;
+import app.exceptions.ConflictException;
 import app.interfaces.IUserService;
 
 import java.util.List;
@@ -27,6 +28,11 @@ public class UserServiceImpl implements IUserService
     @Override
     public UserResponseDTO create(CreateUserRequestDTO request)
     {
+        if (userDAO.findByEmail(request.email()).isPresent())
+        {
+            throw new ConflictException("User already exists with email: " + request.email());
+        }
+
         Company company = companyDAO.getById(request.companyId());
 
         String hashedPassword = passwordService.hashPassword(request.password());
