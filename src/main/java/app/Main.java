@@ -9,6 +9,7 @@ import app.entities.User;
 import app.services.PasswordService;
 import app.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDate;
 
@@ -32,28 +33,28 @@ public class Main
         PasswordService passwordService = new PasswordService();
 
         String adminEmail = "admin@obli.dk";
-        Company company = null;
+        String companyName = "Membersystem Bootstrap Company";
 
         if (userDAO.findByEmail(adminEmail).isPresent())
         {
             System.out.println("Bootstrap admin already exists.");
             return;
         }
-        else
-        {
-            company = companyDAO.create(
-                    Company.builder()
-                            .name("Membersystem Bootstrap Company")
-                            .build()
-            );
-        }
+
+        Company company = companyDAO.findByName(companyName)
+                .orElseGet(() -> companyDAO.create(
+                        Company.builder()
+                                .name(companyName)
+                                .build()
+                ));
 
         String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
         if (password == null || password.isBlank())
         {
             password = Utils.getPropertyValue("PASSWORD", "config.properties");
         }
-        else
+
+        if (password == null || password.isBlank())
         {
             throw new IllegalStateException("BOOTSTRAP_ADMIN_PASSWORD is not set");
         }
