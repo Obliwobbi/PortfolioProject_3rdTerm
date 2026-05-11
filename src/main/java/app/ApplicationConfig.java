@@ -38,6 +38,16 @@ public class ApplicationConfig
 
         Javalin app = Javalin.create(config ->
         {
+            config.bundledPlugins.enableCors(cors ->
+            {
+                cors.addRule(it ->
+                {
+                    it.allowHost(
+                            "https://membersystem.obli.dk",
+                            "http://localhost:5173"
+                    );
+                });
+            });
             config.router.apiBuilder(() ->
             {
                 // TODO: Split routes into separate controller classes later.
@@ -63,12 +73,14 @@ public class ApplicationConfig
             ctx.json(new ApiErrorResponse(400, e.getMessage()));
         });
 
-        app.exception(UnauthorizedException.class, (e, ctx) -> {
+        app.exception(UnauthorizedException.class, (e, ctx) ->
+        {
             ctx.status(401);
             ctx.json(new app.exceptions.ApiErrorResponse(401, e.getMessage()));
         });
 
-        app.exception(ConflictException.class, (e, ctx) -> {
+        app.exception(ConflictException.class, (e, ctx) ->
+        {
             ctx.status(409);
             ctx.json(new ApiErrorResponse(409, e.getMessage()));
         });
@@ -87,7 +99,8 @@ public class ApplicationConfig
         // --------------------
         // TODO: Add authentication endpoints like /login.
 
-        app.post("/login", ctx -> {
+        app.post("/login", ctx ->
+        {
             var request = ctx.bodyAsClass(app.dto.login.LoginRequestDTO.class);
 
             String token = authService.login(request.email(), request.password());
@@ -326,10 +339,12 @@ public class ApplicationConfig
     // Helper methods
     // --------------------
 
-    private static void requireAuth(io.javalin.http.Context ctx, JwtService jwtService) {
+    private static void requireAuth(io.javalin.http.Context ctx, JwtService jwtService)
+    {
         String authHeader = ctx.header("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
+        {
             throw new UnauthorizedException("Missing or invalid Authorization header");
         }
 
