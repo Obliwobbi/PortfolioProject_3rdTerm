@@ -109,6 +109,34 @@ public class ApplicationConfig
             ctx.json(new LoginResponseDTO(token));
         });
 
+        app.get("/me", ctx ->
+        {
+            requireAuth(ctx, jwtService);
+
+            String authHeader = ctx.header("Authorization");
+            String token = authHeader.substring("Bearer ".length());
+
+            String email = jwtService.getEmailFromToken(token);
+
+            User user = userDAO.findByEmail(email)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+            User userWithCompany = userDAO.getByIdWithCompany(user.getId());
+
+            UserResponseDTO response = new UserResponseDTO(
+                    userWithCompany.getId(),
+                    userWithCompany.getEmail(),
+                    userWithCompany.getFirstname(),
+                    userWithCompany.getLastname(),
+                    userWithCompany.getDob(),
+                    userWithCompany.getRole(),
+                    userWithCompany.getCompany().getId(),
+                    userWithCompany.getCompany().getName()
+            );
+
+            ctx.json(response);
+        });
+
         // --------------------
         // Company endpoints
         // --------------------
