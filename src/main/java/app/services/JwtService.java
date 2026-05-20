@@ -9,7 +9,8 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 
 import java.util.Date;
 
-public class JwtService {
+public class JwtService
+{
 
     private final String issuer;
     private final long tokenExpireTime;
@@ -17,12 +18,16 @@ public class JwtService {
     private final Algorithm algorithm;
     private final JWTVerifier verifier;
 
-    public JwtService() {
-        if (System.getenv("DEPLOYED") != null) {
+    public JwtService()
+    {
+        if (System.getenv("DEPLOYED") != null)
+        {
             this.issuer = System.getenv("ISSUER");
             this.tokenExpireTime = Long.parseLong(System.getenv("TOKEN_EXPIRE_TIME"));
             this.secretKey = System.getenv("SECRET_KEY");
-        } else {
+        }
+        else
+        {
             this.issuer = Utils.getPropertyValue("ISSUER", "config.properties");
             this.tokenExpireTime = Long.parseLong(Utils.getPropertyValue("TOKEN_EXPIRE_TIME", "config.properties"));
             this.secretKey = Utils.getPropertyValue("SECRET_KEY", "config.properties");
@@ -34,8 +39,10 @@ public class JwtService {
                 .build();
     }
 
-    public String createToken(LoginUserDTO loginUserDTO) {
-        try {
+    public String createToken(LoginUserDTO loginUserDTO)
+    {
+        try
+        {
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(loginUserDTO.email())
@@ -44,16 +51,30 @@ public class JwtService {
                     .withClaim("companyId", loginUserDTO.companyId())
                     .withExpiresAt(new Date(System.currentTimeMillis() + tokenExpireTime))
                     .sign(algorithm);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new RuntimeException("Could not create token", e);
         }
     }
 
-    public DecodedJWT verifyToken(String token) {
-        try {
+    public DecodedJWT verifyToken(String token)
+    {
+        try
+        {
             return verifier.verify(token);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new app.exceptions.UnauthorizedException("Invalid or expired token");
         }
+    }
+
+    public String getEmailFromToken(String token)
+    {
+        DecodedJWT decodedJWT = JWT.require(algorithm)
+                .withIssuer(issuer)
+                .build()
+                .verify(token);
+
+        return decodedJWT.getSubject();
     }
 }
