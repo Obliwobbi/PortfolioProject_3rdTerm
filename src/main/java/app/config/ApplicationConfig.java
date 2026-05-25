@@ -96,8 +96,6 @@ public class ApplicationConfig
             ctx.json(new ApiErrorResponse(500, "Internal server error"));
         });
 
-        app.get("/", ctx -> ctx.result("MemberSystem API is running"));
-
         // --------------------
         // Authentication endpoints
         // --------------------
