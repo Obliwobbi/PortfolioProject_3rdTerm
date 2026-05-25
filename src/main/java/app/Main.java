@@ -1,5 +1,6 @@
 package app;
 
+import app.config.ApplicationConfig;
 import app.config.HibernateConfig;
 import app.daos.CompanyDAO;
 import app.daos.UserDAO;
@@ -9,7 +10,6 @@ import app.entities.User;
 import app.services.PasswordService;
 import app.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDate;
 
