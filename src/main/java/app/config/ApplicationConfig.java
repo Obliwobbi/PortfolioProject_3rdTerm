@@ -1,4 +1,4 @@
-package app;
+package app.config;
 
 import app.daos.CompanyDAO;
 import app.daos.UserDAO;

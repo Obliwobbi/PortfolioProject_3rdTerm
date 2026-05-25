@@ -1,6 +1,6 @@
 package app.rest;
 
-import app.ApplicationConfig;
+import app.config.ApplicationConfig;
 import app.config.HibernateTestConfig;
 import app.daos.CompanyDAO;
 import app.daos.UserDAO;
