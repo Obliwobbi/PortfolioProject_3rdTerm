@@ -56,25 +56,39 @@ public class UserServiceImpl implements IUserService
     @Override
     public UserResponseDTO getById(Long id)
     {
-        return null;
+        User user = userDAO.getByIdWithCompany(id);
+        return mapToResponseDTO(user);
     }
 
     @Override
     public List<UserResponseDTO> getAll()
     {
-        return List.of();
+        return userDAO.getAllWithCompany().stream()
+                .map(this::mapToResponseDTO)
+                .toList();
     }
 
     @Override
     public UserResponseDTO update(Long id, UpdateUserRequestDTO request)
     {
-        return null;
+        User user = userDAO.getByIdWithCompany(id);
+
+        user.setFirstname(request.firstname());
+        user.setLastname(request.lastname());
+        user.setDob(request.dob());
+        user.setRole(request.role());
+
+        User updated = userDAO.update(user);
+        User updatedWithCompany = userDAO.getByIdWithCompany(updated.getId());
+
+        return mapToResponseDTO(updatedWithCompany);
     }
 
     @Override
     public void delete(Long id)
     {
-
+        User user = userDAO.getById(id);
+        userDAO.delete(user);
     }
 
     private UserResponseDTO mapToResponseDTO(User user)
