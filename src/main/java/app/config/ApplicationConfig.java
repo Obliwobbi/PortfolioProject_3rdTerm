@@ -1,17 +1,15 @@
 package app.config;
 
+import app.controllers.AuthController;
+import app.controllers.UserController;
+import app.controllers.routes.Routes;
 import app.daos.CompanyDAO;
 import app.daos.UserDAO;
 import app.dto.company.CompanyResponseDTO;
 import app.dto.company.CreateCompanyRequestDTO;
 import app.dto.company.UpdateCompanyRequestDTO;
-import app.dto.login.LoginResponseDTO;
 import app.dto.randomuser.RandomUserViewDTO;
-import app.dto.user.CreateUserRequestDTO;
-import app.dto.user.UpdateUserRequestDTO;
-import app.dto.user.UserResponseDTO;
 import app.entities.Company;
-import app.entities.User;
 import app.exceptions.ApiErrorResponse;
 import app.exceptions.ConflictException;
 import app.exceptions.UnauthorizedException;
@@ -30,11 +28,19 @@ public class ApplicationConfig
     {
         CompanyDAO companyDAO = new CompanyDAO(emf);
         UserDAO userDAO = new UserDAO(emf);
+
         PasswordService passwordService = new PasswordService();
         JwtService jwtService = new JwtService();
+
         AuthService authService = new AuthService(userDAO, passwordService, jwtService);
         UserServiceImpl userService = new UserServiceImpl(userDAO, companyDAO, passwordService);
+
         RandomUserService randomUserService = new RandomUserService();
+
+        AuthController authController = new AuthController(authService, jwtService, userDAO);
+        UserController userController = new UserController(userService, jwtService);
+
+        Routes routes = new Routes(authController, userController);
 
         Javalin app = Javalin.create(config ->
         {
@@ -48,10 +54,8 @@ public class ApplicationConfig
                     );
                 });
             });
-            config.router.apiBuilder(() ->
-            {
-                // TODO: Split routes into separate controller classes later.
-            });
+
+            config.router.apiBuilder(routes.getRoutes());
         });
 
         app.before(ctx -> System.out.println("Incoming request: " + ctx.method() + " " + ctx.path()));
@@ -99,43 +103,6 @@ public class ApplicationConfig
         // --------------------
         // TODO: Add authentication endpoints like /login.
 
-        app.post("/login", ctx ->
-        {
-            var request = ctx.bodyAsClass(app.dto.login.LoginRequestDTO.class);
-
-            String token = authService.login(request.email(), request.password());
-
-            ctx.status(200);
-            ctx.json(new LoginResponseDTO(token));
-        });
-
-        app.get("/me", ctx ->
-        {
-            requireAuth(ctx, jwtService);
-
-            String authHeader = ctx.header("Authorization");
-            String token = authHeader.substring("Bearer ".length());
-
-            String email = jwtService.getEmailFromToken(token);
-
-            User user = userDAO.findByEmail(email)
-                    .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
-
-            User userWithCompany = userDAO.getByIdWithCompany(user.getId());
-
-            UserResponseDTO response = new UserResponseDTO(
-                    userWithCompany.getId(),
-                    userWithCompany.getEmail(),
-                    userWithCompany.getFirstname(),
-                    userWithCompany.getLastname(),
-                    userWithCompany.getDob(),
-                    userWithCompany.getRole(),
-                    userWithCompany.getCompany().getId(),
-                    userWithCompany.getCompany().getName()
-            );
-
-            ctx.json(response);
-        });
 
         // --------------------
         // Company endpoints
@@ -220,104 +187,6 @@ public class ApplicationConfig
             Company company = companyDAO.getById(id);
 
             companyDAO.delete(company);
-            ctx.status(204);
-        });
-
-        // --------------------
-        // User endpoints
-        // --------------------
-
-        app.get("/users", ctx ->
-        {
-            requireAuth(ctx, jwtService);
-
-            List<UserResponseDTO> response = userDAO.getAllWithCompany().stream()
-                    .map(user -> new UserResponseDTO(
-                            user.getId(),
-                            user.getEmail(),
-                            user.getFirstname(),
-                            user.getLastname(),
-                            user.getDob(),
-                            user.getRole(),
-                            user.getCompany().getId(),
-                            user.getCompany().getName()
-                    ))
-                    .toList();
-
-            ctx.json(response);
-        });
-
-        app.get("/users/{id}", ctx ->
-        {
-            requireAuth(ctx, jwtService);
-
-            Long id = Long.parseLong(ctx.pathParam("id"));
-            User user = userDAO.getByIdWithCompany(id);
-
-            UserResponseDTO response = new UserResponseDTO(
-                    user.getId(),
-                    user.getEmail(),
-                    user.getFirstname(),
-                    user.getLastname(),
-                    user.getDob(),
-                    user.getRole(),
-                    user.getCompany().getId(),
-                    user.getCompany().getName()
-            );
-
-            ctx.json(response);
-        });
-
-        app.post("/users", ctx ->
-        {
-            requireAuth(ctx, jwtService);
-
-            CreateUserRequestDTO request = ctx.bodyAsClass(CreateUserRequestDTO.class);
-            UserResponseDTO response = userService.create(request);
-
-            ctx.status(201);
-            ctx.json(response);
-        });
-
-        app.put("/users/{id}", ctx ->
-        {
-            requireAuth(ctx, jwtService);
-
-            Long id = Long.parseLong(ctx.pathParam("id"));
-            UpdateUserRequestDTO request = ctx.bodyAsClass(UpdateUserRequestDTO.class);
-
-            User user = userDAO.getByIdWithCompany(id);
-
-            user.setFirstname(request.firstname());
-            user.setLastname(request.lastname());
-            user.setDob(request.dob());
-            user.setRole(request.role());
-
-            User updated = userDAO.update(user);
-            User updatedWithCompany = userDAO.getByIdWithCompany(updated.getId());
-
-            UserResponseDTO response = new UserResponseDTO(
-                    updatedWithCompany.getId(),
-                    updatedWithCompany.getEmail(),
-                    updatedWithCompany.getFirstname(),
-                    updatedWithCompany.getLastname(),
-                    updatedWithCompany.getDob(),
-                    updatedWithCompany.getRole(),
-                    updatedWithCompany.getCompany().getId(),
-                    updatedWithCompany.getCompany().getName()
-            );
-
-            ctx.json(response);
-        });
-
-        app.delete("/users/{id}", ctx ->
-        {
-            requireAuth(ctx, jwtService);
-
-            Long id = Long.parseLong(ctx.pathParam("id"));
-            User user = userDAO.getById(id);
-
-            userDAO.delete(user);
             ctx.status(204);
         });
 
