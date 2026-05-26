@@ -1,6 +1,6 @@
 package app.rest;
 
-import app.ApplicationConfig;
+import app.config.ApplicationConfig;
 import app.config.HibernateTestConfig;
 import app.daos.CompanyDAO;
 import app.daos.UserDAO;
@@ -17,6 +17,7 @@ import java.time.LocalDate;
 
 public class UserRoutesTest
 {
+    private static final String API = "/api/v1";
     private static Javalin app;
     private static EntityManagerFactory emf;
 
@@ -77,7 +78,7 @@ public class UserRoutesTest
                                 """.formatted(name))
                         .header("Authorization", "Bearer " + token)
                         .when()
-                        .post("/companies")
+                        .post(API+"/companies")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -103,7 +104,7 @@ public class UserRoutesTest
                                 """.formatted(companyId, email, password))
                         .header("Authorization", "Bearer " + token)
                         .when()
-                        .post("/users")
+                        .post(API+"/users")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -144,7 +145,7 @@ public class UserRoutesTest
                         }
                         """)
                 .when()
-                .post("/login")
+                .post(API+"/login")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -161,7 +162,7 @@ public class UserRoutesTest
                 .get("/")
                 .then()
                 .statusCode(200)
-                .body(org.hamcrest.Matchers.equalTo("MemberSystem API is running"));
+                .body("message", org.hamcrest.Matchers.equalTo("MemberSystem API is running"));
     }
 
     @Test
@@ -192,7 +193,7 @@ public class UserRoutesTest
                 .body(requestBody)
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .post("/users")
+                .post(API+"/users")
                 .then()
                 .statusCode(201)
                 .body("email", org.hamcrest.Matchers.equalTo("test@test.dk"))
@@ -221,7 +222,7 @@ public class UserRoutesTest
 
         RestAssured
                 .given().contentType("application/json").body(updateBody).header("Authorization", "Bearer " + token)
-                .when().put("/users/" + userId)
+                .when().put(API+"/users/" + userId)
                 .then().statusCode(200)
                 .body("id", org.hamcrest.Matchers.equalTo(userId.intValue()))
                 .body("firstname", org.hamcrest.Matchers.equalTo("Updated"))
@@ -269,7 +270,7 @@ public class UserRoutesTest
                 .body(requestBody)
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .post("/users")
+                .post(API+"/users")
                 .then()
                 .statusCode(201);
         RestAssured
@@ -278,7 +279,7 @@ public class UserRoutesTest
                 .body(requestBody2)
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .post("/users")
+                .post(API+"/users")
                 .then()
                 .statusCode(201);
 
@@ -286,7 +287,7 @@ public class UserRoutesTest
                 .given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/users")
+                .get(API+"/users")
                 .then()
                 .statusCode(200);
     }
@@ -331,7 +332,7 @@ public class UserRoutesTest
                 .body(requestBody)
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .post("/users")
+                .post(API+"/users")
                 .then()
                 .statusCode(201);
 
@@ -343,7 +344,7 @@ public class UserRoutesTest
                         .body(requestBody2)
                         .header("Authorization", "Bearer " + token)
                         .when()
-                        .post("/users")
+                        .post(API+"/users")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -354,7 +355,7 @@ public class UserRoutesTest
                 .given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/users/" + userId)
+                .get(API+"/users/" + userId)
                 .then()
                 .statusCode(200)
                 .body("id", org.hamcrest.Matchers.equalTo(userId.intValue()))
@@ -389,7 +390,7 @@ public class UserRoutesTest
                         .body(requestBody)
                         .header("Authorization", "Bearer " + token)
                         .when()
-                        .post("/users")
+                        .post(API+"/users")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -400,7 +401,7 @@ public class UserRoutesTest
                 .given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .delete("/users/" + userId)
+                .delete(API+"/users/" + userId)
                 .then()
                 .statusCode(204);
 
@@ -409,7 +410,7 @@ public class UserRoutesTest
                 .given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/users/" + userId)
+                .get(API+"/users/" + userId)
                 .then()
                 .statusCode(404);
     }
@@ -440,7 +441,7 @@ public class UserRoutesTest
                     }
                     """.formatted(companyId, email, password))
                 .when()
-                .post("/users")
+                .post(API+"/users")
                 .then()
                 .statusCode(201)
                 .body("email", org.hamcrest.Matchers.equalTo(email))
@@ -456,7 +457,7 @@ public class UserRoutesTest
                     }
                     """.formatted(email, password))
                 .when()
-                .post("/login")
+                .post(API+"/login")
                 .then()
                 .statusCode(200)
                 .body("token", org.hamcrest.Matchers.notNullValue());
@@ -488,7 +489,7 @@ public class UserRoutesTest
                     }
                     """.formatted(companyId, email, password))
                 .when()
-                .post("/users")
+                .post(API+"/users")
                 .then()
                 .statusCode(201);
 
@@ -502,7 +503,7 @@ public class UserRoutesTest
                     }
                     """.formatted(email))
                 .when()
-                .post("/login")
+                .post(API+"/login")
                 .then()
                 .statusCode(401)
                 .body("status", org.hamcrest.Matchers.equalTo(401));

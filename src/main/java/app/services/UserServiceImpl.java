@@ -6,6 +6,7 @@ import app.dto.user.CreateUserRequestDTO;
 import app.dto.user.UpdateUserRequestDTO;
 import app.dto.user.UserResponseDTO;
 import app.entities.Company;
+import app.entities.Role;
 import app.entities.User;
 import app.exceptions.ConflictException;
 import app.interfaces.IUserService;
@@ -54,27 +55,69 @@ public class UserServiceImpl implements IUserService
     }
 
     @Override
+    public UserResponseDTO register(CreateUserRequestDTO request)
+    {
+        if (userDAO.findByEmail(request.email()).isPresent())
+        {
+            throw new ConflictException("User already exists with email: " + request.email());
+        }
+
+        Company company = companyDAO.getById(request.companyId());
+
+        String hashedPassword = passwordService.hashPassword(request.password());
+
+        User user = User.builder()
+                .company(company)
+                .email(request.email())
+                .firstname(request.firstname())
+                .lastname(request.lastname())
+                .dob(request.dob())
+                .role(Role.MEMBER)
+                .passwordHash(hashedPassword)
+                .build();
+
+        User created = userDAO.create(user);
+        User createdWithCompany = userDAO.getByIdWithCompany(created.getId());
+
+        return mapToResponseDTO(createdWithCompany);
+    }
+
+    @Override
     public UserResponseDTO getById(Long id)
     {
-        return null;
+        User user = userDAO.getByIdWithCompany(id);
+        return mapToResponseDTO(user);
     }
 
     @Override
     public List<UserResponseDTO> getAll()
     {
-        return List.of();
+        return userDAO.getAllWithCompany().stream()
+                .map(this::mapToResponseDTO)
+                .toList();
     }
 
     @Override
     public UserResponseDTO update(Long id, UpdateUserRequestDTO request)
     {
-        return null;
+        User user = userDAO.getByIdWithCompany(id);
+
+        user.setFirstname(request.firstname());
+        user.setLastname(request.lastname());
+        user.setDob(request.dob());
+        user.setRole(request.role());
+
+        User updated = userDAO.update(user);
+        User updatedWithCompany = userDAO.getByIdWithCompany(updated.getId());
+
+        return mapToResponseDTO(updatedWithCompany);
     }
 
     @Override
     public void delete(Long id)
     {
-
+        User user = userDAO.getById(id);
+        userDAO.delete(user);
     }
 
     private UserResponseDTO mapToResponseDTO(User user)
