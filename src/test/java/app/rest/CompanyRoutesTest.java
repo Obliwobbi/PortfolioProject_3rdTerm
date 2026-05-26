@@ -17,6 +17,7 @@ import java.time.LocalDate;
 
 public class CompanyRoutesTest
 {
+    private static final String API = "/api/v1";
     private static Javalin app;
     private static EntityManagerFactory emf;
 
@@ -98,7 +99,7 @@ public class CompanyRoutesTest
                         }
                         """)
                 .when()
-                .post("/login")
+                .post(API+"/login")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -115,7 +116,7 @@ public class CompanyRoutesTest
                 .get("/")
                 .then()
                 .statusCode(200)
-                .body(org.hamcrest.Matchers.equalTo("MemberSystem API is running"));
+                .body("message", org.hamcrest.Matchers.equalTo("MemberSystem API is running"));
     }
 
     @Test
@@ -135,7 +136,7 @@ public class CompanyRoutesTest
                 .body(requestBody)
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .post("/companies")
+                .post(API+"/companies")
                 .then()
                 .statusCode(201)
                 .body("name", org.hamcrest.Matchers.equalTo("Test Company"))
@@ -161,7 +162,7 @@ public class CompanyRoutesTest
                         .body(requestBody)
                         .header("Authorization", "Bearer " + token)
                         .when()
-                        .post("/companies")
+                        .post(API+"/companies")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -178,7 +179,7 @@ public class CompanyRoutesTest
         RestAssured
                 .given().contentType("application/json").body(updateBody)
                 .header("Authorization", "Bearer " + token)
-                .when().put("/companies/" + companyId)
+                .when().put(API+"/companies/" + companyId)
                 .then().statusCode(200)
                 .body("id", org.hamcrest.Matchers.equalTo(companyId.intValue()))
                 .body("name", org.hamcrest.Matchers.equalTo("Update Test Company"));
@@ -192,7 +193,7 @@ public class CompanyRoutesTest
         RestAssured
                 .given()
                 .when()
-                .get("/companies")
+                .get(API+"/companies")
                 .then()
                 .statusCode(200);
     }
@@ -215,7 +216,7 @@ public class CompanyRoutesTest
                         .body(requestBody)
                         .header("Authorization", "Bearer " + token)
                         .when()
-                        .post("/companies")
+                        .post(API+"/companies")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -225,7 +226,7 @@ public class CompanyRoutesTest
                 .given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/companies/" + companyId)
+                .get(API+"/companies/" + companyId)
                 .then()
                 .statusCode(200)
                 .body("id", org.hamcrest.Matchers.equalTo(companyId.intValue()))
@@ -251,7 +252,7 @@ public class CompanyRoutesTest
                         .body(requestBody)
                         .header("Authorization", "Bearer " + token)
                         .when()
-                        .post("/companies")
+                        .post(API+"/companies")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -262,7 +263,7 @@ public class CompanyRoutesTest
                 .given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .delete("/companies/" + companyId)
+                .delete(API+"/companies/" + companyId)
                 .then()
                 .statusCode(204);
 
@@ -271,7 +272,7 @@ public class CompanyRoutesTest
                 .given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .get("/companies/" + companyId)
+                .get(API+"/companies/" + companyId)
                 .then()
                 .statusCode(404);
     }
@@ -283,7 +284,7 @@ public class CompanyRoutesTest
         RestAssured
                 .given()
                 .when()
-                .get("/companies/999999")
+                .get(API+"/companies/999999")
                 .then()
                 .statusCode(404)
                 .body("status", org.hamcrest.Matchers.equalTo(404));
