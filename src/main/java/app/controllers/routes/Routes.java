@@ -1,6 +1,7 @@
 package app.controllers.routes;
 
 import app.controllers.AuthController;
+import app.controllers.CompanyController;
 import app.controllers.UserController;
 import io.javalin.apibuilder.EndpointGroup;
 
@@ -14,11 +15,13 @@ public class Routes
 
     private final AuthRoutes authRoutes;
     private final UserRoutes userRoutes;
+    private final CompanyRoutes companyRoutes;
 
-    public Routes(AuthController authController, UserController userController)
+    public Routes(AuthController authController, UserController userController, CompanyController companyController)
     {
         this.authRoutes = new AuthRoutes(authController);
         this.userRoutes = new UserRoutes(userController);
+        this.companyRoutes = new CompanyRoutes(companyController);
     }
 
     public EndpointGroup getRoutes()
@@ -31,6 +34,7 @@ public class Routes
             {
                 authRoutes.getRoutes().addEndpoints();
                 userRoutes.getRoutes().addEndpoints();
+                companyRoutes.getRoutes().addEndpoints();
             });
         };
     }
