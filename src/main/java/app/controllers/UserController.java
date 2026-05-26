@@ -40,6 +40,18 @@ public class UserController
         ctx.json(response);
     }
 
+    public void register(Context ctx)
+    {
+        System.out.println("regsiter reached");
+        CreateUserRequestDTO request = ctx.bodyAsClass(CreateUserRequestDTO.class);
+        System.out.println("request created");
+
+        UserResponseDTO response = userService.register(request);
+        System.out.println("response created");
+
+        ctx.status(201).json(response);
+    }
+
     public void create(Context ctx)
     {
         requireAuth(ctx);
@@ -60,7 +72,7 @@ public class UserController
 
         UserResponseDTO response = userService.update(id, request);
 
-        ctx.json(response);
+        ctx.status(200).json(response);
     }
 
     public void delete(Context ctx)

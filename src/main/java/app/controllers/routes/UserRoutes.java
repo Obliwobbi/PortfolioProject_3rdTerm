@@ -18,6 +18,8 @@ public class UserRoutes
     {
         return () ->
         {
+            post("register", userController::register);
+
             path("users", () ->
             {
                 get(userController::getAll);

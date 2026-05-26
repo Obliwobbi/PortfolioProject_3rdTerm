@@ -10,6 +10,8 @@ public interface IUserService
 {
     UserResponseDTO create(CreateUserRequestDTO request);
 
+    UserResponseDTO register(CreateUserRequestDTO request);
+
     UserResponseDTO getById(Long id);
 
     List<UserResponseDTO> getAll();
