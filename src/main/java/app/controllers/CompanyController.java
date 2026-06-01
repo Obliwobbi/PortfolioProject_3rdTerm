@@ -3,6 +3,8 @@ package app.controllers;
 import app.dto.company.CompanyResponseDTO;
 import app.dto.company.CreateCompanyRequestDTO;
 import app.dto.company.UpdateCompanyRequestDTO;
+import app.dto.login.AuthUserDTO;
+import app.exceptions.UnauthorizedException;
 import app.interfaces.ICompanyService;
 import app.services.JwtService;
 import io.javalin.http.Context;
@@ -23,7 +25,9 @@ public class CompanyController
 
     public void getAll(Context ctx)
     {
-        List<CompanyResponseDTO> response = companyService.getAll();
+        AuthUserDTO authUser = getAuthUser(ctx);
+
+        List<CompanyResponseDTO> response = companyService.getAllVisibleTo(authUser);
 
         ctx.json(response);
     }
@@ -70,6 +74,20 @@ public class CompanyController
             throw new EntityNotFoundException("Company doesnt exist on id: " + id);
         }
         ctx.status(204);
+    }
+
+    private AuthUserDTO getAuthUser(Context ctx)
+    {
+        String authHeader = ctx.header("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
+        {
+            throw new UnauthorizedException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring("Bearer ".length());
+
+        return jwtService.getAuthUserFromToken(token);
     }
 
     private void requireAuth(Context ctx)

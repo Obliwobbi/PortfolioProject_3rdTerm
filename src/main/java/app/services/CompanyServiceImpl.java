@@ -4,7 +4,9 @@ import app.daos.CompanyDAO;
 import app.dto.company.CompanyResponseDTO;
 import app.dto.company.CreateCompanyRequestDTO;
 import app.dto.company.UpdateCompanyRequestDTO;
+import app.dto.login.AuthUserDTO;
 import app.entities.Company;
+import app.entities.Role;
 import app.exceptions.ConflictException;
 import app.interfaces.ICompanyService;
 import io.javalin.http.Context;
@@ -30,6 +32,20 @@ public class CompanyServiceImpl implements ICompanyService
                         company.getName()
                 ))
                 .toList();
+    }
+
+    public List<CompanyResponseDTO> getAllVisibleTo(AuthUserDTO authUser)
+    {
+        if (authUser.role() == Role.SYSTEM_ADMIN)
+        {
+            return companyDAO.getAll().stream()
+                    .map(this::mapToResponseDTO)
+                    .toList();
+        }
+
+        Company company = companyDAO.getById(authUser.companyId());
+
+        return List.of(mapToResponseDTO(company));
     }
 
     @Override
@@ -89,5 +105,12 @@ public class CompanyServiceImpl implements ICompanyService
         return true;
     }
 
+    private CompanyResponseDTO mapToResponseDTO(Company company)
+    {
+        return new CompanyResponseDTO(
+                company.getId(),
+                company.getName()
+        );
+    }
 
 }
