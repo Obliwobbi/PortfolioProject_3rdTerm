@@ -2,6 +2,7 @@ package app.services;
 
 import app.daos.CompanyDAO;
 import app.daos.UserDAO;
+import app.dto.login.AuthUserDTO;
 import app.dto.user.CreateUserRequestDTO;
 import app.dto.user.UpdateUserRequestDTO;
 import app.dto.user.UserResponseDTO;
@@ -95,6 +96,27 @@ public class UserServiceImpl implements IUserService
         return userDAO.getAllWithCompany().stream()
                 .map(this::mapToResponseDTO)
                 .toList();
+    }
+
+    public List<UserResponseDTO> getAllVisibleTo(AuthUserDTO authUser)
+    {
+        if (authUser.role() == Role.SYSTEM_ADMIN)
+        {
+            return userDAO.getAllWithCompany().stream()
+                    .map(this::mapToResponseDTO)
+                    .toList();
+        }
+
+        if (authUser.role() == Role.COMPANY_ADMIN)
+        {
+            return userDAO.findByCompanyIdWithCompany(authUser.companyId()).stream()
+                    .map(this::mapToResponseDTO)
+                    .toList();
+        }
+
+        User user = userDAO.getByIdWithCompany(authUser.userId());
+
+        return List.of(mapToResponseDTO(user));
     }
 
     @Override

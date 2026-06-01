@@ -1,8 +1,10 @@
 package app.controllers;
 
+import app.dto.login.AuthUserDTO;
 import app.dto.user.CreateUserRequestDTO;
 import app.dto.user.UpdateUserRequestDTO;
 import app.dto.user.UserResponseDTO;
+import app.exceptions.UnauthorizedException;
 import app.interfaces.IUserService;
 import app.services.JwtService;
 import io.javalin.http.Context;
@@ -22,9 +24,9 @@ public class UserController
 
     public void getAll(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
 
-        List<UserResponseDTO> response = userService.getAll();
+        List<UserResponseDTO> response = userService.getAllVisibleTo(authUser);
 
         ctx.json(response);
     }
@@ -84,6 +86,20 @@ public class UserController
         userService.delete(id);
 
         ctx.status(204);
+    }
+
+    private AuthUserDTO getAuthUser(Context ctx)
+    {
+        String authHeader = ctx.header("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
+        {
+            throw new UnauthorizedException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring("Bearer ".length());
+
+        return jwtService.getAuthUserFromToken(token);
     }
 
     private void requireAuth(Context ctx)

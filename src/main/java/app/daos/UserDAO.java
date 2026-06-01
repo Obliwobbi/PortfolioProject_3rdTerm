@@ -12,17 +12,21 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class UserDAO implements IDAO<User> {
+public class UserDAO implements IDAO<User>
+{
 
     private final EntityManagerFactory emf;
 
-    public UserDAO(EntityManagerFactory emf) {
+    public UserDAO(EntityManagerFactory emf)
+    {
         this.emf = emf;
     }
 
     @Override
-    public User create(User user) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public User create(User user)
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             em.getTransaction().begin();
 
             Company managedCompany = em.merge(user.getCompany());
@@ -35,8 +39,10 @@ public class UserDAO implements IDAO<User> {
     }
 
     @Override
-    public Set<User> getAll() {
-        try (EntityManager em = emf.createEntityManager()) {
+    public Set<User> getAll()
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             return new HashSet<>(
                     em.createQuery("SELECT u FROM User u", User.class)
                             .getResultList()
@@ -44,8 +50,10 @@ public class UserDAO implements IDAO<User> {
         }
     }
 
-    public Set<User> getAllWithCompany() {
-        try (EntityManager em = emf.createEntityManager()) {
+    public Set<User> getAllWithCompany()
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             return new HashSet<>(
                     em.createQuery("SELECT u FROM User u JOIN FETCH u.company", User.class)
                             .getResultList()
@@ -54,36 +62,46 @@ public class UserDAO implements IDAO<User> {
     }
 
     @Override
-    public User getById(Long id) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public User getById(Long id)
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             User user = em.find(User.class, id);
-            if (user == null) {
+            if (user == null)
+            {
                 throw new EntityNotFoundException("User not found with id: " + id);
             }
             return user;
         }
     }
 
-    public User getByIdWithCompany(Long id) {
-        try (EntityManager em = emf.createEntityManager()) {
-            try {
+    public User getByIdWithCompany(Long id)
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
+            try
+            {
                 return em.createQuery(
                                 "SELECT u FROM User u JOIN FETCH u.company WHERE u.id = :id",
                                 User.class
                         )
                         .setParameter("id", id)
                         .getSingleResult();
-            } catch (NoResultException e) {
+            } catch (NoResultException e)
+            {
                 throw new EntityNotFoundException("User not found with id: " + id);
             }
         }
     }
 
     @Override
-    public User update(User user) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public User update(User user)
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             User found = em.find(User.class, user.getId());
-            if (found == null) {
+            if (found == null)
+            {
                 throw new EntityNotFoundException("User not found with id: " + user.getId());
             }
 
@@ -99,10 +117,13 @@ public class UserDAO implements IDAO<User> {
     }
 
     @Override
-    public Long delete(User user) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public Long delete(User user)
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             User found = em.find(User.class, user.getId());
-            if (found == null) {
+            if (found == null)
+            {
                 throw new EntityNotFoundException("User not found with id: " + user.getId());
             }
 
@@ -113,8 +134,10 @@ public class UserDAO implements IDAO<User> {
         }
     }
 
-    public Optional<User> findByEmail(String email) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public Optional<User> findByEmail(String email)
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             return em.createQuery(
                             "SELECT u FROM User u WHERE u.email = :email",
                             User.class
@@ -125,11 +148,13 @@ public class UserDAO implements IDAO<User> {
         }
     }
 
-    public Set<User> findByCompanyId(Long companyId) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public Set<User> findByCompanyIdWithCompany(Long companyId)
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             return new HashSet<>(
                     em.createQuery(
-                                    "SELECT u FROM User u WHERE u.company.id = :companyId",
+                                    "SELECT u FROM User u JOIN FETCH u.company WHERE u.company.id = :companyId",
                                     User.class
                             )
                             .setParameter("companyId", companyId)
