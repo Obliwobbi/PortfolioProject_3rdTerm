@@ -9,6 +9,7 @@ import app.daos.UserDAO;
 import app.dto.randomuser.RandomUserViewDTO;
 import app.exceptions.ApiErrorResponse;
 import app.exceptions.ConflictException;
+import app.exceptions.ForbiddenException;
 import app.exceptions.UnauthorizedException;
 import app.services.*;
 
@@ -67,11 +68,6 @@ public class ApplicationConfig
         // Exception handlers
         // --------------------
 
-        app.exception(EntityNotFoundException.class, (e, ctx) ->
-        {
-            ctx.status(404);
-            ctx.json(new ApiErrorResponse(404, e.getMessage()));
-        });
 
         app.exception(IllegalArgumentException.class, (e, ctx) ->
         {
@@ -83,6 +79,17 @@ public class ApplicationConfig
         {
             ctx.status(401);
             ctx.json(new ApiErrorResponse(401, e.getMessage()));
+        });
+
+        app.exception(ForbiddenException.class, (e, ctx) -> {
+            ctx.status(403);
+            ctx.json(new ApiErrorResponse(403, e.getMessage()));
+        });
+
+        app.exception(EntityNotFoundException.class, (e, ctx) ->
+        {
+            ctx.status(404);
+            ctx.json(new ApiErrorResponse(404, e.getMessage()));
         });
 
         app.exception(ConflictException.class, (e, ctx) ->

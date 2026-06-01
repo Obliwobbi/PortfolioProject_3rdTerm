@@ -1,6 +1,8 @@
 package app.services;
 
+import app.dto.login.AuthUserDTO;
 import app.dto.login.LoginUserDTO;
+import app.entities.Role;
 import app.utils.Utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -66,6 +68,17 @@ public class JwtService
         {
             throw new app.exceptions.UnauthorizedException("Invalid or expired token");
         }
+    }
+
+    public AuthUserDTO getAuthUserFromToken(String token){
+        DecodedJWT decodedJWT = verifyToken(token);
+
+        return new AuthUserDTO(
+                decodedJWT.getClaim("userId").asLong(),
+                decodedJWT.getSubject(),
+                Role.valueOf(decodedJWT.getClaim("role").asString()),
+                decodedJWT.getClaim("companyId").asLong()
+        );
     }
 
     public String getEmailFromToken(String token)
