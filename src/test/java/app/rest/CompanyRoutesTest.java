@@ -186,17 +186,17 @@ public class CompanyRoutesTest
 
     }
 
-//    @Test
-//    @DisplayName("Return status 200: Get all companies")
-//    void getAllCompanies()
-//    {
-//        RestAssured
-//                .given()
-//                .when()
-//                .get(API+"/companies")
-//                .then()
-//                .statusCode(200);
-//    }
+    @Test
+    @DisplayName("Return status 200: Get all companies")
+    void getAllCompanies()
+    {
+        RestAssured
+                .given()
+                .when()
+                .get(API+"/companies/public")
+                .then()
+                .statusCode(200);
+    }
 
     @Test
     @DisplayName("Return status 200: Get company by ID")
