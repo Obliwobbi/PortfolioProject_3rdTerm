@@ -23,6 +23,13 @@ public class CompanyController
         this.jwtService = jwtService;
     }
 
+    public void getPublicCompanies(Context ctx)
+    {
+        List<CompanyResponseDTO> response = companyService.getAll();
+
+        ctx.json(response);
+    }
+
     public void getAll(Context ctx)
     {
         AuthUserDTO authUser = getAuthUser(ctx);

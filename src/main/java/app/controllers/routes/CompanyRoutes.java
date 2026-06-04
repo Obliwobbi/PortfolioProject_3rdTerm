@@ -20,6 +20,8 @@ public class CompanyRoutes
         {
             path("companies", () ->
             {
+                get("public", companyController::getPublicCompanies);
+
                 get(companyController::getAll);
                 post(companyController::create);
 
