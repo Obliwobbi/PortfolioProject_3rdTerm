@@ -41,45 +41,46 @@ public class CompanyController
 
     public void getById(Context ctx)
     {
+        AuthUserDTO authUser = getAuthUser(ctx);
+
         Long id = Long.parseLong(ctx.pathParam("id"));
 
-        CompanyResponseDTO response = companyService.getById(id);
+        CompanyResponseDTO response = companyService.getByIdVisibleTo(id, authUser);
 
         ctx.json(response);
     }
 
     public void create(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
 
         CreateCompanyRequestDTO request = ctx.bodyAsClass(CreateCompanyRequestDTO.class);
 
-        CompanyResponseDTO response = companyService.create(request);
+        CompanyResponseDTO response = companyService.createVisibleTo(request, authUser);
 
         ctx.status(201).json(response);
     }
 
     public void update(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
 
         Long id = Long.parseLong(ctx.pathParam("id"));
         UpdateCompanyRequestDTO request = ctx.bodyAsClass(UpdateCompanyRequestDTO.class);
 
-        CompanyResponseDTO response = companyService.update(id, request);
+        CompanyResponseDTO response = companyService.updateVisibleTo(id, request, authUser);
 
         ctx.status(200).json(response);
     }
 
     public void delete(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
+
         Long id = Long.parseLong(ctx.pathParam("id"));
-        boolean deleteCheck = companyService.delete(id);
-        if(!deleteCheck)
-        {
-            throw new EntityNotFoundException("Company doesnt exist on id: " + id);
-        }
+
+        companyService.deleteVisibleTo(id, authUser);
+
         ctx.status(204);
     }
 

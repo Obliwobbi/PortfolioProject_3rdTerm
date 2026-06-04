@@ -281,8 +281,11 @@ public class CompanyRoutesTest
     @DisplayName("Return status 404: Company Does not exist")
     void return404WhenCompanyDoesNotExist()
     {
+        String token = loginAsSeededAdmin();
+
         RestAssured
                 .given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(API+"/companies/999999")
                 .then()

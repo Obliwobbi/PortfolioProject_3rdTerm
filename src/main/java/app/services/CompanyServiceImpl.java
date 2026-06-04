@@ -8,6 +8,7 @@ import app.dto.login.AuthUserDTO;
 import app.entities.Company;
 import app.entities.Role;
 import app.exceptions.ConflictException;
+import app.exceptions.ForbiddenException;
 import app.interfaces.ICompanyService;
 import io.javalin.http.Context;
 
@@ -49,19 +50,27 @@ public class CompanyServiceImpl implements ICompanyService
     }
 
     @Override
-    public CompanyResponseDTO getById(Long id)
+    public CompanyResponseDTO getByIdVisibleTo(Long id, AuthUserDTO authUser)
     {
         Company company = companyDAO.getById(id);
 
-        return new CompanyResponseDTO(
-                company.getId(),
-                company.getName()
-        );
+        if (authUser.role() == Role.SYSTEM_ADMIN)
+        {
+            return mapToResponseDTO(company);
+        }
+
+        if (!authUser.companyId().equals(company.getId()))
+        {
+            throw new ForbiddenException("You can only view your own company");
+        }
+
+        return mapToResponseDTO(company);
     }
 
     @Override
     public CompanyResponseDTO create(CreateCompanyRequestDTO request)
     {
+
         if (companyDAO.findByName(request.name()).isPresent())
         {
             throw new ConflictException("Company already exists with name: " + request.name());
@@ -80,29 +89,48 @@ public class CompanyServiceImpl implements ICompanyService
     }
 
     @Override
-    public CompanyResponseDTO update(Long id, UpdateCompanyRequestDTO request)
+    public CompanyResponseDTO createVisibleTo(CreateCompanyRequestDTO request, AuthUserDTO authUser)
     {
+        if (authUser.role() != Role.SYSTEM_ADMIN)
+        {
+            throw new ForbiddenException("Only system admins can create companies");
+        }
+
+        return create(request);
+    }
+
+    @Override
+    public CompanyResponseDTO updateVisibleTo(Long id, UpdateCompanyRequestDTO request, AuthUserDTO authUser)
+    {
+        if (authUser.role() == Role.MEMBER)
+        {
+            throw new ForbiddenException("Members are not allowed to update companies");
+        }
+
+        if (authUser.role() == Role.COMPANY_ADMIN && !authUser.companyId().equals(id))
+        {
+            throw new ForbiddenException("Company admins can only update their own company");
+        }
+
         Company company = companyDAO.getById(id);
         company.setName(request.name());
 
         Company updated = companyDAO.update(company);
 
-        return new CompanyResponseDTO(
-                updated.getId(),
-                updated.getName()
-        );
+        return mapToResponseDTO(updated);
     }
 
     @Override
-    public boolean delete(Long id)
+    public void deleteVisibleTo(Long id, AuthUserDTO authUser)
     {
-        Company company = companyDAO.getById(id);
-        if(company == null)
+        if (authUser.role() != Role.SYSTEM_ADMIN)
         {
-            return false;
+            throw new ForbiddenException("Only system admins can delete companies");
         }
+
+        Company company = companyDAO.getById(id);
+
         companyDAO.delete(company);
-        return true;
     }
 
     private CompanyResponseDTO mapToResponseDTO(Company company)

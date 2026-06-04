@@ -33,57 +33,56 @@ public class UserController
 
     public void getById(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
 
         Long id = Long.parseLong(ctx.pathParam("id"));
 
-        UserResponseDTO response = userService.getById(id);
+        UserResponseDTO response = userService.getByIdVisibleTo(id, authUser);
 
         ctx.json(response);
     }
 
     public void register(Context ctx)
     {
-        System.out.println("regsiter reached");
         CreateUserRequestDTO request = ctx.bodyAsClass(CreateUserRequestDTO.class);
-        System.out.println("request created");
 
         UserResponseDTO response = userService.register(request);
-        System.out.println("response created");
+
 
         ctx.status(201).json(response);
     }
 
     public void create(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
 
         CreateUserRequestDTO request = ctx.bodyAsClass(CreateUserRequestDTO.class);
 
-        UserResponseDTO response = userService.create(request);
+        UserResponseDTO response = userService.createVisibleTo(request, authUser);
 
         ctx.status(201).json(response);
     }
 
     public void update(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
 
         Long id = Long.parseLong(ctx.pathParam("id"));
+
         UpdateUserRequestDTO request = ctx.bodyAsClass(UpdateUserRequestDTO.class);
 
-        UserResponseDTO response = userService.update(id, request);
+        UserResponseDTO response = userService.updateVisibleTo(id, request, authUser);
 
         ctx.status(200).json(response);
     }
 
     public void delete(Context ctx)
     {
-        requireAuth(ctx);
+        AuthUserDTO authUser = getAuthUser(ctx);
 
         Long id = Long.parseLong(ctx.pathParam("id"));
 
-        userService.delete(id);
+        userService.deleteVisibleTo(id, authUser);
 
         ctx.status(204);
     }

@@ -13,11 +13,13 @@ public interface ICompanyService
 
     List<CompanyResponseDTO> getAllVisibleTo(AuthUserDTO authUser);
 
-    CompanyResponseDTO getById(Long id);
+    CompanyResponseDTO getByIdVisibleTo(Long id, AuthUserDTO authUser);
 
     CompanyResponseDTO create(CreateCompanyRequestDTO request);
 
-    CompanyResponseDTO update(Long id, UpdateCompanyRequestDTO updateCompanyRequestDTO);
+    CompanyResponseDTO createVisibleTo(CreateCompanyRequestDTO request, AuthUserDTO authUser);
 
-    boolean delete(Long id);
+    CompanyResponseDTO updateVisibleTo(Long id, UpdateCompanyRequestDTO request, AuthUserDTO authUser);
+
+    void deleteVisibleTo(Long id, AuthUserDTO authUser);
 }

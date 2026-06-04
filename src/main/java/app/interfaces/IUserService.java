@@ -9,17 +9,19 @@ import java.util.List;
 
 public interface IUserService
 {
-    UserResponseDTO create(CreateUserRequestDTO request);
-
-    UserResponseDTO register(CreateUserRequestDTO request);
-
-    UserResponseDTO getById(Long id);
-
     List<UserResponseDTO> getAll();
 
     List<UserResponseDTO> getAllVisibleTo(AuthUserDTO authUser);
 
-    UserResponseDTO update(Long id, UpdateUserRequestDTO request);
+    UserResponseDTO create(CreateUserRequestDTO request);
 
-    void delete(Long id);
+    UserResponseDTO createVisibleTo(CreateUserRequestDTO request, AuthUserDTO authUser);
+
+    UserResponseDTO register(CreateUserRequestDTO request);
+
+    UserResponseDTO getByIdVisibleTo(Long id, AuthUserDTO authUser);
+
+    UserResponseDTO updateVisibleTo(Long id, UpdateUserRequestDTO request, AuthUserDTO authUser);
+
+    void deleteVisibleTo(Long id, AuthUserDTO authUser);
 }

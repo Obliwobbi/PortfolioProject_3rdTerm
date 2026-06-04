@@ -70,7 +70,8 @@ public class JwtService
         }
     }
 
-    public AuthUserDTO getAuthUserFromToken(String token){
+    public AuthUserDTO getAuthUserFromToken(String token)
+    {
         DecodedJWT decodedJWT = verifyToken(token);
 
         return new AuthUserDTO(
