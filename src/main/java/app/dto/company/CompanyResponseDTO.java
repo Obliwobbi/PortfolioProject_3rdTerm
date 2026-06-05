@@ -2,5 +2,6 @@ package app.dto.company;
 
 public record CompanyResponseDTO(
         Long id,
-        String name
+        String name,
+        Boolean publicRegistrationEnabled
 ) {}

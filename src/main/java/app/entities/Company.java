@@ -21,6 +21,10 @@ public class Company {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Builder.Default
+    @Column(name = "public_registration_enabled", nullable = false)
+    private boolean publicRegistrationEnabled = true;
+
     // TODO: Add users collection later for bi-directional relationships.
 
 }

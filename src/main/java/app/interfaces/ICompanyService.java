@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ICompanyService
 {
-    List<CompanyResponseDTO> getAll();
+    List<CompanyResponseDTO> getPublicCompanies();
 
     List<CompanyResponseDTO> getAllVisibleTo(AuthUserDTO authUser);
 

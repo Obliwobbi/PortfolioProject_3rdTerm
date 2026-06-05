@@ -1,5 +1,6 @@
 package app.dto.company;
 
 public record CreateCompanyRequestDTO(
-        String name
+        String name,
+        Boolean publicRegistrationEnabled
 ) {}

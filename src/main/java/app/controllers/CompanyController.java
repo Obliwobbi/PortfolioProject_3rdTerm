@@ -8,7 +8,6 @@ import app.exceptions.UnauthorizedException;
 import app.interfaces.ICompanyService;
 import app.services.JwtService;
 import io.javalin.http.Context;
-import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class CompanyController
 
     public void getPublicCompanies(Context ctx)
     {
-        List<CompanyResponseDTO> response = companyService.getAll();
+        List<CompanyResponseDTO> response = companyService.getPublicCompanies();
 
         ctx.json(response);
     }
@@ -98,16 +97,4 @@ public class CompanyController
         return jwtService.getAuthUserFromToken(token);
     }
 
-    private void requireAuth(Context ctx)
-    {
-        String authHeader = ctx.header("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer "))
-        {
-            throw new app.exceptions.UnauthorizedException("Missing or invalid Authorization header");
-        }
-
-        String token = authHeader.substring("Bearer ".length());
-        jwtService.verifyToken(token);
-    }
 }

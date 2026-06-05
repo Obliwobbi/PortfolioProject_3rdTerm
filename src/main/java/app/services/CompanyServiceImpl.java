@@ -10,7 +10,6 @@ import app.entities.Role;
 import app.exceptions.ConflictException;
 import app.exceptions.ForbiddenException;
 import app.interfaces.ICompanyService;
-import io.javalin.http.Context;
 
 import java.util.List;
 
@@ -19,19 +18,16 @@ public class CompanyServiceImpl implements ICompanyService
     private final CompanyDAO companyDAO;
 
 
-    public CompanyServiceImpl (CompanyDAO companyDAO)
+    public CompanyServiceImpl(CompanyDAO companyDAO)
     {
         this.companyDAO = companyDAO;
     }
 
     @Override
-    public List<CompanyResponseDTO> getAll()
+    public List<CompanyResponseDTO> getPublicCompanies()
     {
-        return companyDAO.getAll().stream()
-                .map(company -> new CompanyResponseDTO(
-                        company.getId(),
-                        company.getName()
-                ))
+        return companyDAO.getAllPublicRegistrationEnabled().stream()
+                .map(this::mapToResponseDTO)
                 .toList();
     }
 
@@ -70,22 +66,24 @@ public class CompanyServiceImpl implements ICompanyService
     @Override
     public CompanyResponseDTO create(CreateCompanyRequestDTO request)
     {
-
         if (companyDAO.findByName(request.name()).isPresent())
         {
             throw new ConflictException("Company already exists with name: " + request.name());
         }
 
+        boolean publicRegistrationEnabled =
+                request.publicRegistrationEnabled() != null
+                        ? request.publicRegistrationEnabled()
+                        : true;
+
         Company company = Company.builder()
                 .name(request.name())
+                .publicRegistrationEnabled(publicRegistrationEnabled)
                 .build();
 
         Company created = companyDAO.create(company);
 
-        return new CompanyResponseDTO(
-                created.getId(),
-                created.getName()
-        );
+        return mapToResponseDTO(created);
     }
 
     @Override
@@ -114,6 +112,10 @@ public class CompanyServiceImpl implements ICompanyService
 
         Company company = companyDAO.getById(id);
         company.setName(request.name());
+        if (request.publicRegistrationEnabled() != null)
+        {
+            company.setPublicRegistrationEnabled(request.publicRegistrationEnabled());
+        }
 
         Company updated = companyDAO.update(company);
 
@@ -137,7 +139,8 @@ public class CompanyServiceImpl implements ICompanyService
     {
         return new CompanyResponseDTO(
                 company.getId(),
-                company.getName()
+                company.getName(),
+                company.isPublicRegistrationEnabled()
         );
     }
 

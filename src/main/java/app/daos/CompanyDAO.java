@@ -44,6 +44,20 @@ public class CompanyDAO implements IDAO<Company>
         }
     }
 
+    public Set<Company> getAllPublicRegistrationEnabled()
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
+            return new HashSet<>(
+                    em.createQuery(
+                                    "SELECT c FROM Company c WHERE c.publicRegistrationEnabled = true",
+                                    Company.class
+                            )
+                            .getResultList()
+            );
+        }
+    }
+
     @Override
     public Company getById(Long id)
     {
