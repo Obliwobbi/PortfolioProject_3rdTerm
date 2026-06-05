@@ -101,16 +101,4 @@ public class UserController
         return jwtService.getAuthUserFromToken(token);
     }
 
-    private void requireAuth(Context ctx)
-    {
-        String authHeader = ctx.header("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer "))
-        {
-            throw new app.exceptions.UnauthorizedException("Missing or invalid Authorization header");
-        }
-
-        String token = authHeader.substring("Bearer ".length());
-        jwtService.verifyToken(token);
-    }
 }
