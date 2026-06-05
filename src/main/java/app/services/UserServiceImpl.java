@@ -233,6 +233,11 @@ public class UserServiceImpl implements IUserService
             throw new ForbiddenException("Company admins can only delete users from their own company");
         }
 
+        if (authUser.role() == Role.COMPANY_ADMIN && (user.getRole().equals(Role.SYSTEM_ADMIN) || user.getRole().equals(Role.COMPANY_ADMIN)))
+        {
+            throw new ForbiddenException("Company admins cannot delete another admin - please contact a system admin");
+        }
+
         userDAO.delete(user);
     }
 
