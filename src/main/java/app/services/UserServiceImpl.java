@@ -178,6 +178,11 @@ public class UserServiceImpl implements IUserService
                 throw new ForbiddenException("Company admins can only update users from their own company");
             }
 
+            if (user.getRole() == Role.SYSTEM_ADMIN && request.role() != Role.SYSTEM_ADMIN)
+            {
+                throw new ForbiddenException("Company admins cannot demote system admins");
+            }
+
             if (request.role() == Role.SYSTEM_ADMIN)
             {
                 throw new ForbiddenException("Company admins cannot promote users to system admin");
